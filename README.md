@@ -37,7 +37,10 @@ alt="arXiv" height="14"> <a href="xx">Arxiv</a>
 <br>
 </p>
 
-<img src="assets/intro.png" alt="GSM8K-V Pipeline" style="width: 600px; height: auto; display: block; margin: 0 auto;">
+<p align="center">
+  <img src="assets/intro.png" alt="GSM8K-V Pipeline" style="width: 95%; height: auto; display: block; margin: 0 auto;">
+</p>
+
 
 
 ## 🔔 News
