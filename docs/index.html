@@ -464,55 +464,19 @@
 
           let imagesHtml = '';
           if (ex.images && ex.images.length > 0) {
-            // 检查是否是Image Style示例（包含"Pixar"和"Giphli"）
-            const isImageStyleExample = ex.question.includes("fog bank") || ex.images.some(img => img.alt.includes("Pixar") || img.alt.includes("Giphli"));
-
-            if (isImageStyleExample) {
-              // 分离Pixar和Giphli图片
-              const pixarImages = ex.images.filter(img => img.alt.includes("Pixar"));
-              const giphliImages = ex.images.filter(img => img.alt.includes("Giphli"));
-
-              imagesHtml = `
-                <!-- Pixar Images -->
-                <div class="box" style="background-color: #fff3e0; padding: 1rem; margin-bottom: 1rem;">
-                  <strong>GSM8K-V Images (Pixar Style).</strong>
-                  <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                    ${pixarImages.map(img => `
-                      <div style="flex: 1; min-width: 150px; text-align: center;">
-                        <img src="${img.src}" alt="${img.alt}" style="width: 100%; max-width: 150px; border-radius: 5px; margin-bottom: 0.5rem;">
-                        <small>${img.alt}</small>
-                      </div>
-                    `).join('')}
-                  </div>
+            imagesHtml = `
+              <div class="box" style="background-color: #fff3e0; padding: 1rem; margin-bottom: 1rem;">
+                <strong>GSM8K-V Images.</strong>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                  ${ex.images.map(img => `
+                    <div style="flex: 1; min-width: 150px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                      <img src="${img.src}" alt="${img.alt}" style="width: 100%; max-width: 150px; border-radius: 5px; margin-bottom: 0.5rem; display: block;">
+                      <small style="text-align: center; width: 100%;">${img.alt}</small>
+                    </div>
+                  `).join('')}
                 </div>
-                <!-- Giphli Images -->
-                <div class="box" style="background-color: #fff3e0; padding: 1rem; margin-bottom: 1rem;">
-                  <strong>GSM8K-V Images (Giphli Style).</strong>
-                  <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                    ${giphliImages.map(img => `
-                      <div style="flex: 1; min-width: 150px; text-align: center;">
-                        <img src="${img.src}" alt="${img.alt}" style="width: 100%; max-width: 150px; border-radius: 5px; margin-bottom: 0.5rem;">
-                        <small>${img.alt}</small>
-                      </div>
-                    `).join('')}
-                  </div>
-                </div>
-              `;
-            } else {
-              imagesHtml = `
-                <div class="box" style="background-color: #fff3e0; padding: 1rem; margin-bottom: 1rem;">
-                  <strong>GSM8K-V Images.</strong>
-                  <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                    ${ex.images.map(img => `
-                      <div style="flex: 1; min-width: 150px; text-align: center;">
-                        <img src="${img.src}" alt="${img.alt}" style="width: 100%; max-width: 150px; border-radius: 5px; margin-bottom: 0.5rem;">
-                        <small>${img.alt}</small>
-                      </div>
-                    `).join('')}
-                  </div>
-                </div>
-              `;
-            }
+              </div>
+            `;
           }
 
           let groundTruthHtml = '';
@@ -606,7 +570,7 @@
       <p>
         We evaluate a broad range of open- and closed-source vision-language models on GSM8K-V, comparing their performance against the text-only GSM8K baseline to quantify the modality gap.
       </p>
-      <img src="static/images/main_result.png" alt="Main experimental results of GSM8K-V" style="width: 100%; max-height: 800px; object-fit: cover; border-radius: 10px; margin-bottom: 1.5rem;">
+      <img src="static/images/main_result.png" alt="Main experimental results of GSM8K-V" style="width: 100%; height:auto; object-fit: cover; border-radius: 10px; margin-bottom: 1.5rem;">
       <p>
         Performance comparison between text-only GSM8K and visual GSM8K-V across different model architectures, highlighting the substantial modality gap in mathematical reasoning capabilities.
       </p>
