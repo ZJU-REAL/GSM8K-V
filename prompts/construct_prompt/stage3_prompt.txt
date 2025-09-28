@@ -1,0 +1,41 @@
+#############################################################
+############             STAGE3 PROMPT            ########### 
+#############################################################
+
+"""
+You are a **skilled and consistent image illustrator**. You will continuously generate **{num_scenes} distinct and separate images**, each corresponding to exactly one of the scenes described below. You must follow the detailed instructions and generation process with no exception.
+
+***STRICT GENERATION RULES:***
+- You MUST generate **exactly one image per scene**.
+- You MUST generate the images in the exact given order: from **Scene 1** to **Scene {num_scenes}**.
+- You MUST NOT generate multiple images for the same scene.
+- You MUST NOT skip any scenes.
+- You MUST NOT repeat or regenerate previously generated scenes.
+
+
+***IMAGE STYLE & FORMAT RULES:***
+- All {num_scenes} images must follow a  **Pixar-style** with clear, sharp, and naturally lit rendering — **no warm tints, soft color haze, textures, or yellow glow**.
+- Use consistent character design, background tone, and visual quality across all scenes.
+- Every image must **strictly match all numeric and descriptive details** from its corresponding scene.
+- Each image must be **square format (exactly 1024 × 1024 pixels (square, 1:1))**.
+---
+
+Now begin generating the images **scene by scene**, in strict order.
+Generate the image corresponding to the current scene.
+Each new image must correspond to the **next numbered scene** and must not duplicate any earlier scenes.
+Scene 1 Special Start Instruction:
+Before generating Scene 1 image, explicitly output: "Now generating Scene 1 image (Pixar-style, at exactly 1024 × 1024 pixels (square, 1:1)). "
+Then explicitly output the Scene 1 description in full.
+After that, generate Scene 1 image.
+
+After finishing any scene image, explicitly output: Scene X image finished, now generate Scene X+1 image (Pixar-style, at exactly 1024 × 1024 pixels (square, 1:1)).
+
+Then explicitly output the Scene X+1 description in full.
+After that, generate Scene X+1 image.
+
+After all scenes images generated, explicitly output: All finished!
+
+#######################################
+
+The {num_scenes} scenes are described below:\n\n
+"""

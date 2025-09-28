@@ -1,0 +1,2291 @@
+#############################################################
+###########             STAGE2 PROMPT            ############ 
+#############################################################
+
+visual_detail_strategy = """
+## Visual Detail Strategy
+Must only for below math information(e.g. use_strategy must be visual_detail):
+  {
+    "object": "object field content",
+    "math_value": "math_value field content",
+    "semantic": "semantic field content",
+    "use_strategy": "visual_detail",
+    "use_meta_description": "none"
+  }
+
+Template output:
+
+    **Object Description Template:**
+       - `[math_value field content] [object field content]`, each rendered with distinct visual features (e.g., color, shape, texture) are placed evenly on the where(semantic field content).
+       
+    **Composition Description Template:**
+       - `[math_value field content] [object field content]` must be described in a fully visible, non-overlapping, and easily countable manner.
+       - Objects must exhibit slight variation in position, size, or orientation to enhance perceptual clarity.
+"""
+
+textual_information_strategy = """
+## Textual Information Strategy
+
+Must only for the below math infotmation:
+{
+  "object": "object field content",
+  "math_value": "math_value field content",
+  "semantic": "semantic field content",
+  "use_strategy": "textual_information(speech bubble) or textual_information(label) or textual_information(sign board)",
+  "use_meta_description": "none"
+}
+
+Based on `use_strategy`, select the corresponding description template. The value of `use_strategy` must be one of the following:
+* `textual_information(speech bubble)`
+* `textual_information(label)`
+* `textual_information(sign board)`
+
+
+Use the corresponding description template based on the value of `use_strategy`:
+
+### 1. Speech Bubble Template (`use_strategy: textual_information(speech bubble)`)
+DO NOT CARE math_value field content, just use object field content and semantic field content.
+
+Template output:
+
+**Object:**
+- A Character(must be the same as object field content) facing forward or slightly angled .
+- A clearly visible speech bubble extending from the character's mouth or face, fully and samely stating semantic field content.
+
+**Composition:**
+- The speech bubble must be connected to the speaking character with a visible tail.
+- The speech bubble should not overlap with the other object.
+
+
+
+### 2. Label Template (`use_strategy: textual_information(label)`)
+DO NOT CARE semantic field content, just use object field content and math_value field content.
+
+Template output:
+
+**Object:**
+- The object (must be the same as 'object' field content)
+- The label stating must be the same as 'math_value' field content
+
+**Composition:**
+- The label must be attached to the surface of an object(must be the same as 'object' field content) or be part of the inherent surface marking of the object.
+
+
+
+### 3. Sign Board Template (`use_strategy: textual_information(sign board)`)
+
+Template output:
+
+**Object:**
+  - A [semantic field content] (add some appearance description)
+  - icon(convert the [object field content] into corresponding icon) + [math_value field content].
+
+**Composition:**
+  - The icon/emoji (must convert the object into corresponding icon) should be displayed on a separate line above the `math_value` field content.
+
+For more than one math_information input using sign board in one scene, you should only use one signboard and many lines to describe the icon + math_value.
+
+Example:
+input:
+{
+  "object": "apple",
+  "math_value": "$3",
+  "semantic": "price list",
+  "use_strategy": "textual_information(sign board)",
+  "use_meta_description": "none"
+}
+{
+  "object": "banana",
+  "math_value": "$2/kg",
+  "semantic": "price list",
+  "use_strategy": "textual_information(sign board)",
+  "use_meta_description": "none"
+}
+
+Example output (according to the template):
+
+**Object:**
+  - A visually clear and attractive price list with textual label 'price list'
+  - The price list line1 states: 🍎  $3
+  - The price list line2 states:🍌  $2/kg
+
+**Composition:**
+  - The 🍎  $3  and 🍌 $2/kg are displayed on a separate line on the price list.
+"""
+
+visual_text_link = """
+## Action Stragegy (Visual-Textual Linking Strategy)
+MUST USED BY ALL THE SCENES
+
+Based on the 
+{
+  "object": "",
+  "math_value": "",
+  "semantic": "The character specific action.",
+  "use_strategy": "action",
+  "use_meta_description": "none"
+}
+
+
+action is a link between visual-detail-description and textual-information-detail.
+The `action` field should contain **only** the description of the semantic anchoring action or gesture.
+
+It must be constructed with the following components:
+
+#### Approved Cross-Modal Visual Linkage Strategies:
+
+1. **Pointing Gesture**  
+   The character must clearly point toward the specific visual group that corresponds to the referenced math value.
+
+2. **Gaze Direction**  
+   The eyes of the character must align with the referenced object(s). Gaze must be directed and specific — not ambiguous or generic.
+
+3. **Torso Orientation**  
+   The character’s upper body must be turned toward the relevant visual target, reinforcing gaze or pointing.
+
+4. **Holding or Touching**  
+   The character physically holds or touches an object that semantically links to the textual math content. Use only when unambiguous.
+
+**Important:**  
+No form of **partial occlusion**, **visual clutter**, or **symbolic ambiguity** is permitted.  
+
+These constraints must be applied **strictly and uniformly across all scenes** to guarantee reasoning integrity, accurate modality binding, and evaluable semantic alignment.
+"""
+
+character_description = """
+Character Scene Description Strategy
+MUST (USED BY ALL THE SCENES)
+### Scene-Based Character Limitation:
+- Only include characters that are explicitly present or contextually implied within the scene. Do not invent or introduce new characters that are not logically part of the described environment.
+
+### Explicit Character Naming and Identity Consistency:
+- Every character must always be described by their specific name, together with their fixed visual traits (e.g., clothing color, hair, accessories).
+- Never use generic or ambiguous references such as "a student", "a child". Always state the character's name and traits in every scene where they appear.
+- Avoid any ambiguity: every character’s action or dialogue must be clearly connected to their named identity and appearance.
+
+### Scene Description
+In multi-character scenes, always clarify who is speaking, acting, or thinking, using both their name and visual traits.+
+If the character has been described in the preivous scene, the subsequent scene just say charcter's name(the same character)
+"""
+
+final_scene_description = """
+{
+  "object": "object field content",
+  "math_value": "math_value field content",
+  "semantic": "semantic field content",
+  "use_strategy": "use_strategy field content",
+  "use_meta_description": "none"
+}
+## Final Scene Description Strategy (MUST USED BY ALL THE SCENES)
+only care about object field content and semantic field content.
+
+The last scene (i.e., the one with the highest scene_id) **must not introduce any new mathematical information**. In this final scene where the question is explicitly asked, the **visual composition must follow these strictly enforced constraints to preserve semantic accuracy and visual interpretability**:
+
+### Mandatory Character and Bubble Requirement
+
+* **The character(object field content) who raises the question must always be present.**
+* The character must be linked with a clearly anchored speech bubble or thought bubble, the fully same as the semantic field content**.
+* The speech bubble stating must be the same as semantic field content.
+
+"""
+
+special_strategy = """
+## Special Strategy
+- If the math value or semantic is related with'each', your description only use one/a number, do not use more than one to mistake.
+
+## **Speech Bubble Combination Rule**
+- If more than one speech bubble need to be used, you should combine the content in one speech bubble.(Only one speech bubble is allowed in any the same one scene descirption)
+* A single speech bubble appears above the character’s head, containing the full **bubble content** (and, if there are multiple statements to be presented by the character, these must be combined into a single bubble). The tail of the bubble points to the character's mouth.
+
+* **Only one speech bubble may appear in any single scene.**
+* If multiple pieces of speech content (semantic field from different math information entries) need to be expressed by the same character in one scene, **these statements must be merged and presented together inside a single bubble**.
+* The combined speech bubble should:
+
+  * Contain both/all statements, merged in a grammatically clear way (e.g., by joining with a comma, conjunction, or period as contextually appropriate).
+  * Have only one bubble visual, positioned as described above, with its tail pointing to the speaking character.
+  * Ensure the entire combined text is fully legible within the bubble, and the bubble does **not overlap** any icons, labels, or the board.
+  
+"""
+
+stage2_global_strategy = f"""
+# GLOBAL STRATEGY
+
+{visual_detail_strategy}
+
+{textual_information_strategy}
+
+{final_scene_description}
+
+{visual_text_link}
+
+{character_description}
+
+{special_strategy}
+
+--- GOAL ---
+
+ATTENTION: ALL DESCRIPTION  MUST STRICTLY FOLLOW GLOBAL STRATEGY
+
+Every part of the scene description task must be executed with strict adherence to the definitions, strategies, and templates provided in the section:
+
+You are **not allowed** to invent new concepts, shortcuts, or personal interpretations.  
+Every inference must be traceable to one or more of the global rules.
+
+"""
+
+#############################################################
+############           META DESCRIPTION          ############ 
+#############################################################
+
+year_meta_description = """
+## year_meta_description
+
+Must only for the below math infotmation("use_meta_description" must be "year_meta_description"):
+{
+  "object": "calendar",
+  "math_value": "math_value field content",
+  "semantic": "semantic field content",
+  "use_strategy": "none",
+  "use_meta_description": "year_meta_description"
+}
+
+object:
+  - A calendar only with a bold black numeric year label (math_value field content) is prominently displayed.
+  
+composition:
+  - The year label uses a clean sans-serif font, bold and unobstructed.
+  - The calendar is placed on the [position](based on the semantic field content).
+
+"""
+
+month_meta_description = """
+## month_meta_description
+
+Must only for the below math infotmation ("use_meta_description" must be "month_meta_description"):  
+{
+  "object": "calendar",
+  "math_value": "math_value field content", # Format may be:JAN | FEB | MAR ...
+  "semantic": "semantic field content",
+  "use_strategy": "none",
+  "use_meta_description": "month_meta_description"
+}
+
+object:
+  - A simplified calendar layout is shown, designed to express month-level information without daily details.
+  - All twelve months are displayed using standard three-letter uppercase abbreviations: JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC.
+  - The month abbreviations are arranged in a single horizontal row with 12 equally spaced columns.
+  - One or more month labels — specifically: the red-marked months from math_value field content — are highlighted with a solid red circular mark that fully encloses each abbreviation.
+
+
+composition:
+  - All 12 month abbreviations are evenly spaced along a single line, aligned and non-overlapping.
+  - The calendar is placed on the [position](based on the semantic field content).
+"""
+
+week_meta_description = """
+## week_meta_description
+
+Must only for the below math infotmation("use_meta_description" must be "week_meta_description"):
+{
+  "object": "calendar",
+  "math_value": "math_value field content",
+  "semantic": "semantic field content",
+  "use_strategy": "none",
+  "use_meta_description": "week_meta_description"
+}
+
+object:
+  - A calendar only with a bold black numeric label (math_value field content) is prominently displayed.
+  
+composition:
+  - The label uses a clean sans-serif font, bold and unobstructed.
+  - The calendar is placed on the [position](based on the semantic field content).
+
+"""
+
+day_meta_description = """
+## day meta description
+
+Must only for the below math infotmation ("use_meta_description" must be "day_meta_description"):  
+{
+  "object": "calendar",
+  "math_value": "specific day(s)",(day1 | day2 ...)
+  "semantic": "semantic field content",
+  "use_strategy": "none",
+  "use_meta_description": "day_meta_description"
+}
+
+
+object:
+  - A wall-mounted monthly calendar(The background color is a light beige, while the header area (where "JULY" is written in all capital letters, centered in bold black sans-serif font) is a bright orange, creating a clear visual separation).
+  - The calendar grid has 7 columns labeled with single-letter weekday initials: S, M, T, W, T, F, S (with Sunday on the far left).
+  - calendar has 5 full rows of square date cells representing the days of the month.
+  - Each date from '1' to '31' is shown as a bold black numeral, centered inside its square cell. The first date ('1') appears in the third cell(i.e., Tuesday column) in the first row. The last  date ('31') appears in the fifth cell(i.e., Thursday column) in the fifth row. 
+
+composition:
+  - The clock is diaplayed on the upper left of [position](based on the semantic field content).
+  - The calendar is cleanly structured with even spacing and clearly separated date cells.
+  - The grid is rectangular, with consistent column widths and row heights to maintain visual balance.
+"""
+
+distance_between_locations_meta_description = """
+## distance_between_locations meta description
+
+{
+  "object": "object field content",
+  "math_value": "location A | location B",
+  "semantic": "semantic field content",
+  "use_strategy": "none",
+  "use_meta_description": "distance_between_locations_meta_description"
+}
+
+object: 
+    - A road sign board( reference to object field content)
+    - Two distinct real-world location icons(must be based on the math_value field content-location A and location B ) are shown on the road sign board.
+    - A double-headed horizontal arrow is placed between the two icons, representing the distance. 
+    - Above the center of the arrow is a bold label (must be the same as semantic field content) 
+
+composition: 
+    - The two location icons are horizontally aligned on opposite sides of the road sign board, spaced far enough apart to make the arrow visually prominent. 
+    - The arrow spans between them with its midpoint clearly centered. 
+    - The  label sits exactly at the midpoint of the arrow, bold and unobstructed. 
+    
+Remeber if more than one distance_between_locations_meta_description in the same scene: 
+  * **You should display only one road sign board in the scene.**
+  * **Each distance pair is represented as a separate horizontal line on the same sign board.**
+  * **Each line has its own pair of icons (location A, location B), a double-headed arrow between them, and a label above the arrow (from semantic).**
+  * **Lines are vertically stacked on the sign board, each line separated and clearly legible.**
+  * **No icon pair, arrow, or label from any input should be omitted or merged.**
+  #### **Input Example:**
+  {
+    "object": "route",
+    "math_value": "School icon | Library icon",
+    "semantic": "7 km",
+    "use_strategy": "none",
+    "use_meta_description": "distance_between_locations_meta_description"
+  },
+  {
+    "object": "route",
+    "math_value": "Home icon | Park icon",
+    "semantic": "10 km",
+    "use_strategy": "none",
+    "use_meta_description": "distance_between_locations_meta_description"
+  }
+
+  #### **Output Example:**
+  **object:**
+
+  - A road sign board displaying multiple distance lines.
+  - First line:
+    - A school icon (left) and a library icon (right),
+    - a double-headed arrow between them,
+    - and the label "7 km" above the center of the arrow.
+  - Second line:
+    - A home icon (left) and a park icon (right),
+    - a double-headed arrow between them,
+    - and the label "10 km" above the center of the arrow.
+
+  **composition:**
+  - The sign board is vertically oriented and divided into two horizontal sections, one for each distance pair.
+  - Each line displays its own pair of icons on left and right ends, with the double-headed arrow spanning between them.
+  - Each label is bold, placed above the midpoint of its arrow, and fully visible.
+  - The two lines are evenly spaced, clearly separated, and stacked from top to bottom on the same sign board.
+"""
+
+object_measurement_meta_description = """
+### object_measurement_meta_description
+
+### Case1:
+Input:
+{
+  "object": "object field content",
+  "math_value": "numeric label",
+  "semantic": "width/length/height/depth/thick",
+  "use_strategy": "none",
+  "use_meta_description": "object_measurement_meta_description"
+}
+
+Output(for width, length, height, depth):
+object: 
+    - A single concrete object is shown(based on object field content).
+    - A dimension line is used to indicate one specific physical measurement(based on the semantic field content): either its length (horizontal), width (depth), or height (vertical). 
+    - The line appears as a bold double-headed arrow extending from one edge of the object to the opposite edge, corresponding exactly to the measured dimension. 
+    - A numeric label (must be the same as math_value field content) is placed at the midpoint of the arrow, clearly indicating the measurement.
+
+composition: 
+    - The object is centrally placed in the scene with clear surrounding space to avoid visual clutter. 
+    - The measurement arrow aligns precisely with the relevant edges of the object—left to right for length, front to back for width, or bottom to top for height. 
+    - The arrow tips are flush with the object's boundaries, not floating or overlapping unnecessarily. 
+    - The numeric label is centered along the arrow, using bold, legible font. 
+    
+If semantic field content is "thick", Specially:
+object:
+  - A box, shown as a single concrete 3D object.
+  - A short, bold, double-headed arrow is placed precisely across the wall section (cutaway or visible edge), representing the thickness dimension.
+  - The numeric label 2 cm  is centered along the arrow in bold font.
+
+composition:
+  - The box is centrally placed in the scene with clear surrounding space, avoiding any visual clutter.
+  - One panel of the box is slightly cut away or opened to reveal the wall’s cross-section.
+  - The thickness arrow aligns with the wall boundaries and is drawn inside the section, not floating outside.
+  - The arrow tips are flush with the inner and outer surfaces of the wall.
+  - The numeric label "2 cm" is centered on the arrow, using a bold and legible font.
+  
+  
+### Case2:
+Input:
+{
+  "object": "position A | position B",
+  "math_value": "numeric label",
+  "semantic": "", # object placed strategy
+  "use_strategy": "none",
+  "use_meta_description": "object_measurement_meta_description"
+}
+
+Output(for width, length, height, depth):
+object: 
+    - A dimension line is used to indicate one specific physical measurement(based on the semantic field content): either its length (horizontal), width (depth), or height (vertical). 
+    - The line appears as a bold double-headed arrow extending from position A to the position B, corresponding exactly to the measured dimension. 
+    - A numeric label (must be the same as math_value field content) is placed at the midpoint of the arrow, clearly indicating the measurement.
+
+composition: 
+    based on the semantic to place the object.
+    - The measurement arrow aligns precisely with the relevant edges of the object—left to right for length, front to back for width, or bottom to top for height. 
+    - The arrow tips are flush with the position A and position B.
+    - The numeric label is centered along the arrow, using bold, legible font. 
+"""
+
+time_span_meta_description = """
+# time_span meta description
+
+{
+  "object": "clock",
+  "math_value": "clock1 time | clock2 time",
+  "semantic": "semantic field content",
+  "use_strategy": "none",
+  "use_meta_description": "time_span_meta_description"
+}
+
+if clock2 time > 12:00, use the clock2 time - 12:00 as the clock2 time.
+for exmaple:"math_value": "8:00 | 15:00",
+clock1 time is 8:00
+15:00 - 12:00 = 3:00, so the clock2 time is 3:00.
+
+object: 
+    Two analog wall clocks are shown side by side horizonally. 
+    Each clock has a white circular face with clearly drawn black tick marks and bold black numerals from 1 to 12 evenly spaced around the rim. 
+    Both clocks have distinct black hour and minute hands, pointing to different times(must based on the math_value field content). 
+    A bold horizontal arrow, above the arrow, a centered label in bold font indicates the activity or purpose of the time span (must the same as semantic field content).
+
+composition: 
+    The two clocks are positioned horizontally at eye level, with ample space between them. 
+    The horizontal arrow begins precisely at the 3 o’clock edge of the left clock and ends at the 9 o’clock edge of the right clock. 
+    The label above the arrow is centered and written in clean, bold sans-serif font. 
+"""   
+
+weight_meta_description = """
+# weight meta description
+
+{
+  "object": "object field content",
+  "math_value": "math_value field content",
+  "semantic": "semantic field content",
+  "use_strategy": "none",
+  "use_meta_description": "weight_meta_description"
+}
+
+only care about object field content and math_value field content.
+
+object: 
+    - [concrete object](must be the same as object field content) is placed on a digital scale. 
+    - The digital scale has a clear rectangular display screen showing the weight reading: '[XX](must be the same as math_value field content)'  in black digits.
+
+composition: 
+    - The [concrete object] sits centered on the weighing surface of the digital scale. 
+    - The scale's display screen is located at the front, angled slightly toward the viewer. 
+    - The numeric weight value is prominently visible on the screen, free from glare or obstruction. 
+    - No overlapping elements or secondary labels are present.
+"""
+
+icon_ratio_meta_description = """
+# icon_ratio meta description
+
+
+Only for below math infomation template input(use_meta_description must be icon_ratio):
+{
+  "object": "Entity 1 icon(description) | Entity 2 icon(description) | Entity 3 icon(description) ...",
+  "math_value": "X | Y | Z ...",
+  "semantic": "Entity A icon | Entity B icon | Entity C icon ...",
+  "use_strategy": "none",
+  "use_meta_description": "icon_ratio_meta_description"
+}
+Template Output:
+
+if object field content includes icons, use the following template:
+object:  
+  - A board labeled 'comparison list'.
+  - board line1 starts with Entity 1 icon : X Entity A icon(s)
+  - board line2 starts with Entity 2 icon : Y Entity B icon(s)
+  - board line3 starts with Entity 3 icon : Z Entity C icon(s)
+  - ...
+
+composition:  
+  - The icons are evenly spaced in each row.
+  
+  
+else object field content just includes description, use the following template:
+object:  
+  - A board labeled 'comparison list'.
+  - board line1 starts with Entity 1 description : X Entity A icon(s)
+  - board line2 starts with Entity 2 description : Y Entity B icon(s)
+  - board line3 starts with Entity 3 description : Z Entity C icon(s)
+  - ...
+
+composition:  
+  - The icons are evenly spaced in each row.
+  
+### For example:
+input:
+{
+  "object": "javelin icon | gemstone icon + javelin icon",
+  "math_value": "1 | 3",
+  "semantic": "yellow square icon | yellow square icon",
+  "use_strategy": "none",
+  "use_meta_description": "icon_ratio_meta_description"
+}
+
+Output:
+object:  
+  - A rectangular board labeled 'comparison list'.
+  - board line1 starts with 🎯 : 🟨
+  - board line2 starts with 💎 ➕ 🎯 : 🟨🟨🟨
+  
+  
+input:
+{
+  "object": "javelin distance | javelin with gemstone disctance",
+  "math_value": "1 | 3",
+  "semantic": "yellow square icon | yellow square icon",
+  "use_strategy": "none",
+  "use_meta_description": "icon_ratio_meta_description"
+}
+
+Output:
+object:  
+  - A rectangular board labeled 'comparison list'.
+  - board line1 starts with: javelin distance : 🟨
+  - board line2 starts with: javelin with gemstone distance : 🟨🟨🟨
+
+composition:  
+  - The textual labels and icons are evenly spaced in each row and ':' is used to separate the label(description) and icons.
+"""
+
+
+graph_ratio_meta_description = """
+# graph_ratio meta description
+
+Only for below input(use_meta_description must be graph_ratio):
+{
+  "object": "[color1] | [color2] | [color3] | [color4] ...",
+  "math_value": "N | M | O | P ...",
+  "semantic": "color1 legend | color2 legend | color3 legend | color4 legend",
+  "use_strategy": "none",
+  "use_meta_description": "graph_ratio_meta_description"
+}
+
+remember:
+  - the number of colors and the number of values can be less/more than 4.
+  
+labels (ratio-labeling requirement):
+
+algorithm (deterministic):
+Parse math_value into integer list v = [v1, v2, ...]. Let T = sum(v).
+For each vi compute percent_i = 100 * vi / T.
+If every percent_i is an integer (i.e., percent_i == floor(percent_i) for all i), produce labels "{percent_i}%".
+Otherwise, for each vi compute g = gcd(vi, T) and produce "{vi/g}/{T/g}".
+Attach labels to slices and repeat labels in legend.
+If the provided math_value has been scaled (e.g., to meet an external rule such as sum ≥ 20), compute labels from the scaled values — they preserve original ratios.
+
+examples:
+math_value = "1 | 2 | 3 | 4" -> T = 10 -> percentages 10% | 20% | 30% | 40% -> use percentages.
+math_value = "1 | 2 | 3 | 1" -> T = 7 -> cannot express as integer percentages -> use fractions 1/7 | 2/7 | 3/7 | 1/7.
+math_value = "1 | 2" -> T = 3 -> percent values 33.333... and 66.666... -> not integer -> fractions 1/3 | 2/3.
+
+math_value = "2 | 1" -> T = 3 -> percent values 66.666... and 33.333... -> not integer -> fractions 2/3 | 1/3.
+
+
+object:
+  - A single circle visually displayed as a pie chart.
+  - The circle is evenly divided into 7 equal radial segments, starting from the top center and proceeding clockwise. Each segment is outlined with a clear boundary.
+  - The first 1 segment is filled with a solid red (label: 1/7).
+  - The next 2 segments are filled with a solid blue (label: 2/7).
+  - The following 3 segments are filled with a solid green (label: 3/7).
+  - The remaining 1 segment is filled with a solid yellow (label: 1/7).
+  - A legend is placed below the pie chart:
+      - A small red square followed by the text 'A'.
+      - A small blue square followed by the text 'B (2/7)'.
+      - A small green square followed by the text 'C (3/7)'.
+      - A small yellow square followed by the text 'D (1/7)'.
+  
+######################################
+
+Template OUT(for number 4):
+
+object:
+- A single circle visually displayed as a pie chart representing the ratio of [color1], [color2], [color3], [color4], ... segments.
+- The circle is evenly divided into T equal radial segments, where T = N + M + O + P + ... . Starting at the top center and proceeding clockwise:
+  - The first N segments are filled with solid [color1] (label: [label1]).
+  - The next M segments are filled with solid [color2] (label: [label2]).
+  - The next O segments are filled with solid [color3] (label: [label3]).
+  - The next P segments are filled with solid [color4] (label: [label4]).
+  - ... (continue for any additional colors/values).
+- Below the pie chart is a legend consisting of horizontal items:
+  - A small [color1] square followed by the text '[semantic1]'.
+  - A small [color2] square followed by the text '[semantic2]'.
+  - A small [color3] square followed by the text '[semantic3]'.
+  - A small [color4] square followed by the text '[semantic4]'.
+  - ...
+
+composition:
+- The pie chart is displayed at the position indicated by the semantic context and rendered in clean, high-contrast vector style.
+-  render black text label label1 centered over the color1 wedge cluster and black text label label2  centered over the color2 wedge cluster. render black text label label3 centered over the color3 wedge cluster and black text label label4  centered over the color4 wedge cluster.
+- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified."
+ 
+"""
+
+cross_scene_clock_meta_description = """
+# cross_scene_clock_meta_description
+
+{
+  "object": "clock",
+  "math_value": "clock time",
+  "semantic": "semantic field content", # position of the clock
+  "use_strategy": "none",
+  "use_meta_description": "cross_scene_clock_meta_description"
+}
+
+if clock time > 12:00, use the clock time - 12:00 as the clock time.
+for exmaple:"math_value": "15:00",
+15:00- 12:00 = 3:00, so the clock time is 3:00.
+
+(Face: Circular, light beige background )
+
+
+object: 
+  - A wall clock has a light beige background circular face, and thick, dark blue border frame, with clearly drawn black tick marks and bold black numerals from 1 to 12 evenly spaced around the rim. 
+  - The clock has distinct black hour and minute hands, pointing to different times(must based on the math_value field content). 
+
+composition: 
+  - The wall clock is placed on the upper right of the [position].(based on the semantic field content)
+""" 
+
+dashboard_meta_description = """
+# dashboard_meta_description
+
+Only for below input(use_meta_description must be dashboard_meta_description):
+{
+  "object": "dashboard position",
+  "math_value": "math_value field content",
+  "semantic": "NUMA | NUMB | NUMC",
+  "use_strategy": "none",
+  "use_meta_description": "dashboard_meta_description"
+}
+
+Dashboard (Speedometer) Template Output:
+Object:
+- A Dashboard(Speedometer) Shape: Perfect circle(No Needle)
+Scale Markings: Range: 0 to NUMA [UNIT]. Increment: NUMB [UNIT] per tick mark, with every NUMC mark labeled numerically (e.g 0, NUMB, 2*NUMB…).
+Tick Marks: Evenly spaced, short black lines around the circumference.
+Numbers:Clear black sans-serif font, evenly distributed around the circular dial.Positioned near the tick marks for easy readability.
+Label: Bold text indicating the unit (e.g., “MPH” or “KMH”), centered at the bottom of the dial inside the circle.
+
+composition:
+- The dashboard is placed on the [replace with dashboard position].
+"""
+
+process_prompt = """
+###############################################
+##  SCENE DESCRIPTION PROMPT (IMAGE-GUIDED)  ##
+###############################################
+
+You are a strict scene description generator.
+Your task is to generate accurate visual descriptions for mathematical reasoning scenes. Each scene expresses one or more math facts, and each fact is explicitly bound to a **strategy** and optionally to a **meta-description template**.
+Each scene will ultimately be used to generate an image. Therefore:
+
+### YOUR TASK:
+
+You are given the following JSON input:
+
+{
+  "scenes": [
+    {
+      "scene_id": <int>,        // Unique scene ID, starting from 1
+
+      "scene_math_information": [  // The math information that this scene is responsible for expressing
+        {
+          "object": <string>,      
+          "math_value": <string>,     
+          "semantic": <string>,            
+          "use_strategy": <string>,           // The math object math_value semantic description use stragegy, must follow the consistent global defined strategy. (none / visual_detail / textual_information(speech bubble) / textual_information(sign board) / textual_information(label) / final_scene_description)        
+          "use_meta_description": <string>,   // The math object math_value semantic description use meta description, must follow the consistent defined meta description. (none/ year_meta_description / month_meta_description / week_meta_description / day_meta_description / distance_between_locations_meta_description / object_measurement_meta_description / weight_meta_description / graph_ratio_meta_description / cross_scene_clock_meta_description / dashboard_meta_description)
+        }, ...  # other math information
+      ],
+    }, ... # other scene
+    
+  ]
+}
+
+You must refine each scene by producing a **structured output with three fields** for every scene:
+
+{
+  "scenes": [
+    {
+      "scene_id": <int>,             // The original scene's ID (copied from input)
+      "object": <string>,            // A detailed list of all visible objects and text elements in the scene.
+                                     // Each character must have fixed visual traits; list all key props, labels, and any bubble, sign, or label required for the math info.
+      "composition": <string>,       // Description of spatial layout: positions, orientation, grouping, spacing, relative size, placement of all objects and text,
+                                     // and any necessary actions or gestures needed for visual reasoning.
+      "action": <string>             // The specific action, gesture, or pose that semantically links the math information to the scene
+    }, ...
+  ]
+}
+
+For each math information entry:
+- Follow the exact `use_strategy` (e.g., visual_detail, textual_information(speech bubble), textual_information(label), textual_information(sign board), final_scene_description)
+- First Follow the exact `use_meta_description` if provided
+- DO NOT combine different strategies for one value.
+- If multiple math facts exist in the same scene, each must be described **once**, via its own strategy and without overlap.
+- Use **natural visual phrasing description**, not abstract logic or narration.
+
+###############################################
+##   STRATEGY PRIORITY RULE (MUST FOLLOW)    ##
+###############################################
+
+If a `scene_math_information` entry includes a non-'none' value for `use_meta_description`,
+then the corresponding visual description **must** follow the layout, composition, and semantics of the specified `meta_description` module.
+
+This overrides any general defaults.
+
+### Priority Rule:
+▶ When `use_meta_description != "none"`:
+    - You MUST first check the corresponding visual structure, label location, text placement, and icon rules from that meta module.
+    - The visual description (object, composition, action) must conform 1:1 to the **drawing constraints** in that meta-description.
+    - DO NOT apply general-purpose templates like visual_detail or generic layout logic.
+    - Speech bubble placement, object alignment, and scene framing must follow meta-specs.
+
+▶ When `use_meta_description == "none"`:
+    - Use the assigned `use_strategy` from the global strategy (e.g., visual_detail, textual_information:speech, label, sign board, or final_scene_description).
+    - Fall back to general visual enumeration or textual integration layouts as defined in the GLOBAL STRATEGY.
+
+This rule is absolute and overrides all ambiguous cases.
+
+
+### DESCRIPTION FIELD RULES
+(must be based on the global strategy and corresponding meta description)
+#### 1. `object`:
+- List all visually present elements:
+  - Named characters (with distinct clothing and identity) or
+  - Concrete objects 
+  - Textual elements 
+  - Use clear, draw-ready descriptions
+- DO NOT include location, motion, or spatial alignment — only what exists
+
+#### 2. `composition`:
+- Describe **where and how** each object appears:
+  - Spatial arrangement, alignment, scale, grouping
+  - Orientation of characters and elements
+  - Speech bubble placement (above head, pointing to mouth, not overlapping content)
+- Be literal and draw-ready — avoid metaphorical phrasing
+- If an object was shown in a previous scene and appears again identically, state: “the same [object] appears in the same position”
+
+#### 3. `action`:
+- Use only approved linking gestures:
+  - “points at …”
+  - “gazes toward …”
+  - “touches …”
+  - “torso angled toward …”
+
+
+###  VALIDATION REMINDERS
+
+- Every `math_value` must be represented **once and only once**, using the assigned `use_strategy`
+- No extra numerical info is allowed beyond what is provided
+- Visual layout must be fully compatible with scene drawing
+- Use consistent formatting and phrasing across scenes
+
+Your output will be used to **generate exact visual scenes**. Follow these rules precisely.
+
+
+#######################################################################
+##   Chain of Thought inherently for Scene Description Generation    ##
+#######################################################################
+
+### Step 1: Parse Input
+Extract the scenes array from the JSON input.
+Iterate through each scene by its scene_id (do not process scenes together).
+
+### Step 2: Process Each Scene Individually
+For Each Scene:
+Extract the scene_math_information list.
+For each math information entry, identify and record all five global fields:
+- object
+- math_value
+- semantic
+- use_strategy
+- use_meta_description
+
+###  Step 3: Determine Which Strategy to Apply (Field-by-Field Reference)
+For each math information entry:
+- If use_meta_description is NOT "none":
+     Strictly apply the corresponding meta description module.The fields used (object, math_value, semantic) are referenced according to meta description rules:
+      - object: Refer to meta description's exact object requirements.
+      - math_value: Use only as specified in the meta description.
+      - semantic: Include only if meta description specifies its appearance.
+      - Do NOT use or reference use_strategy when a meta description is specified. 
+      - Layout, text, icon placement, and any required action must be identical to the meta module’s instructions.
+    For example:
+      input: {
+        "object": "clock",
+        "math_value": "15:00",
+        "semantic": "living room",
+        "use_strategy": "none",
+        "use_meta_description": "cross_scene_clock_meta_description"
+        }
+      output:
+         object:
+            - A wall clock has a light beige background circular face, and thick, dark blue border frame, with clearly drawn black tick marks and bold black numerals from 1 to 12 evenly spaced around the rim. 
+          - The clock has distinct black hour and minute hands, the hour hand is pointing to 3 and the minute hand is pointing to 0.
+        composition:
+          - The wall clock is placed on the upper-right of the wall in the living room.
+
+- Else (use_meta_description == "none"):
+     Apply use_strategy from the global strategy:
+     Reference the appropriate global field(s):
+     - For visual_detail, use object and math_value semantic fields for description.
+     - For textual_information(speech bubble), use object and semantic only, as the template dictates ignoring math_value.
+     - For textual_information(label), use object and math_value only.
+     - For textual_information(sign board), use all: object, math_value, and semantic as per template.
+     - For final_scene_description, always ensure the character and semantic (question) are shown as per template.
+
+All descriptions must be aligned with their official template in the global strategy, and never add or infer information beyond the scene input.
+
+#### Step 4: Compose the Scene's Output Fields
+For each scene, generate the following fields (by aggregating all relevant math information in this scene):
+
+1. object
+List ALL visible elements, by referencing only the objects, characters, icons, labels, speech bubbles, and props dictated by the meta description or global strategy template for each math entry.
+Character references (names, clothing, etc.) must strictly follow the Character Scene Description Strategy:
+Only include named characters if their presence is specified or logically implied in the scene.
+Always state their fixed traits and names if present.
+Do NOT include:
+Any object, label, text, icon, or character not mentioned or required by the current scene's math information.
+Any content from other scenes or inferred background details.
+
+2. composition
+Describe the spatial arrangement, grouping, and orientation of all elements listed in object, for this specific scene:
+Must directly follow layout, alignment, position, groupings, and spacing specified by the applied meta description or global strategy template for each math entry.
+Integrate all math information in the scene so the composition logically and visually expresses all required facts, without contradiction or omission.
+If multiple math facts exist: Integrate them so that spatial arrangement is unambiguous and matches all strategy requirements (e.g., no visual overlap or semantic ambiguity).
+Do NOT include any compositional features for objects or facts not present in the scene input.
+
+Universal requirement (add to every scene):
+All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.
+Example to use at the end of every composition:
+All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.
+
+3. action
+For each scene, assign only one or more of the approved anchoring gestures from the Action Strategy (Visual-Textual Linking Strategy):
+The action(s) must provide the required visual-semantic link between the scene’s character(s) and the math information being presented.
+
+
+"""
+
+
+example1_input = {
+"scenes": [
+  {
+    "scene_id": 1,
+    "scene_math_information": [
+      {
+        "object": "canvas bag packs",
+        "math_value": "4",
+        "semantic": "number of packs Tara bought",
+        "use_strategy": "visual_detail",
+        "use_meta_description": "none"
+      },
+      {
+        "object": "canvas bags per pack",
+        "math_value": "5",
+        "semantic": "bags quantity per pack",
+        "use_strategy": "visual_detail",
+        "use_meta_description": "none"
+      },
+      {
+        "object": "Tara",
+        "math_value": "4",
+        "semantic": "Besides these, I bought 4 more packs. And bags on the desk are per pack's quantity.",
+        "use_strategy": "textual_information(speech bubble)",
+        "use_meta_description": "none"
+      }
+    ]
+  },
+  {
+    "scene_id": 2,
+    "scene_math_information": [
+      {
+        "object": "a canvas bag",
+        "math_value": "$4",
+        "semantic": "price per canvas bag",
+        "use_strategy": "textual_information(label)",
+        "use_meta_description": "none"
+      },
+      {
+        "object": "a greeting card",
+        "math_value": "$2",
+        "semantic": "price per greeting card",
+        "use_strategy": "textual_information(label)",
+        "use_meta_description": "none"
+      },
+      {
+        "object": "Tara",
+        "math_value": "",
+        "semantic": "Each cost me this much.",
+        "use_strategy": "textual_information(speech bubble)",
+        "use_meta_description": "none"
+      }
+    ]},
+  {
+    "scene_id": 3,
+    "scene_math_information": [
+      {
+        "object": "a painted canvas bag",
+        "math_value": "$8",
+        "semantic": "selling price per painted bag",
+        "use_strategy": "textual_information(label)",
+        "use_meta_description": "none"
+      },
+      {
+        "object": "Tara",
+        "math_value": "",
+        "semantic": "I sold these at the fair.",
+        "use_strategy": "textual_information(speech bubble)",
+        "use_meta_description": "none"
+      }
+    ],
+  },
+  {
+    "scene_id": 4,
+      "scene_math_information": [
+        {
+          "object": "Tara",
+          "math_value": "",
+          "semantic": "How much profit can I earn on bags?",
+          "use_strategy": "final_scene_description",
+          "use_meta_description": "none"
+        }
+      ]
+  }
+]
+}
+
+
+example1_output = {
+"scenes":[
+  {
+    "scene_id": 1,
+    "object": """
+      - Tara (wearing a yellow scarf and long brown hair) .  
+      - 5 loose canvas bags.  
+      - A torn-open empty plastic wrapper. 
+      - 3 unopened packs of canvas bags, each fully sealed with no visible labeling.  
+      - A speech bubble reading: 'Besides these, I bought 4 more packs. And bags on the desk are per pack's quantity.'
+    """,
+    "composition": """
+      - The table is centered in the scene.  - The 5 loose bags and the empty wrapper(laid beside the 5 loose bags) are clearly placed on the table left side,  with the wrapper slightly overlapping the edge of the bags to suggest their former containment.   
+      - The 3 unopened packs are spaced evenly on the right side of the table, not overlapping with each other or with the loose bags.   
+      - All objects on the table are fully visible and non-overlapping.  
+      - Tara is positioned directly behind the table, facing forward. 
+      - The speech bubble is positioned above her head with the tail naturally pointing to her mouth, clearly separated from all objects.  
+      - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.
+    """, 
+    "action": """
+      Tara points with her right hand toward the four packs on the table—three unopened and one empty—while delivering her statement. 
+    """
+  },
+  {
+    "scene_id": 2,
+    "object": """
+      - Tara (the same character). 
+      - One unopened pack of canvas bags placed on the table. 
+      - A price tag displaying the price '$4' in bold black font affixed to the pack.
+      - A blue greeting card on the table with a price tag displaying the price '$4'.
+      - A speech bubble reading: 'Each cost me this much.' 
+    """,
+    "composition": """
+      - The unopened pack is placed in the right foreground of the table, with the price label visibly attached to its surface. 
+      - The greeting card is placed on the left side of the table, with the price label visibly attached to its surface.
+      - Tara stands to the left of the table, angled slightly toward it. 
+      - Her right arm is extended, pointing directly at the pack price label to establish referential alignment. 
+      - The speech bubble is positioned above Tara's head with its tail pointing naturally toward her mouth. 
+      - There is no visual overlap among Tara, the pack, or the label. 
+      - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified. 
+    """,
+    "action": """
+      Tara uses a pointing gesture(towards pack on the right) to anchor her spoken statement to the price tag on the pack. 
+    """
+  },
+  {
+    "scene_id": 3,
+    "object": """
+      - Tara (the same character). 
+      - Five painted canvas bags with bright, colorful designs.
+      - A small stack of greeting cards. 
+      - A rectangular price sign attached to the table near the canvas bags, displaying '$8 each'. 
+      - A speech bubble reading: 'I sold these at the fair.' 
+    """,
+    "composition": """
+      - The table is horizontally centered in the scene. 
+      - The five painted canvas bags are evenly spaced in the center of the table, with no overlap between them. 
+      - The greeting cards are placed on the far right side of the table, clearly separated from the bags. 
+      - The price sign is aligned directly with the canvas bags and positioned close to them without touching or pointing to the greeting cards. 
+      - Tara stands behind the table, her body angled toward the bags. 
+      - Her gaze and open hand are directed at the canvas bags to visually establish referential linkage. 
+      - The speech bubble is positioned above Tara's head, with the tail naturally pointing to her mouth. 
+      - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified. 
+    """,
+    "action": """
+      Tara uses an open-hand gesture and eye gaze directed specifically at the painted bags to ground her reference to 'these' in the speech bubble. 
+    """
+  },
+  {
+    "scene_id": 4,
+    "object": """
+      - Tara (the same character) at the fair. 
+      - An empty woven basket.  
+      - A speech bubble reading: 'How much profit can I earn on bags?' 
+    """,
+    "composition": """
+      - Tara hold the empty woven basket.
+      - The speech bubble is placed above Tara's head, with the tail pointing naturally to her mouth. 
+      - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified. 
+    """,
+    "action": """
+      Tara places her right hand thoughtfully on her chin while gazing at the empty basket. 
+      This posture expresses a reflective attitude about the outcome of the selling process. 
+    """
+  }
+]
+}
+
+measurement_input = {
+    "scenes": [
+      {
+        "scene_id": 1,
+        "scene_math_information": [
+          {
+            "object": "chair",
+            "math_value": "3 feet",
+            "semantic": "width of the chair",
+            "use_strategy": "none",
+            "use_meta_description": "object_measurement_meta_description"
+          }
+        ]
+      },
+      {
+        "scene_id": 2,
+        "scene_math_information": [
+          {
+            "object": "the right edge of the chair | the right edge of the rug",
+            "math_value": "5 feet",
+            "semantic": "the left edge of chair and rug is aligned, rug is wider than chair",
+            "use_strategy": "none",
+            "use_meta_description": "object_measurement_meta_description"
+          }
+        ]
+      },
+      {
+        "scene_id": 3,
+        "scene_math_information": [
+          {
+            "object": "couch icon| rug icon",
+            "math_value": "2 | 1",
+            "semantic": "ruler icon | ruler icon",
+            "use_strategy": "none",
+            "use_meta_description": "icon_ratio_meta_description"
+          },
+          {
+            "object": "Kate",
+            "math_value": "",
+            "semantic": "This represents the width ratio between couch and rug, but now the couch width increased by 2 feet",
+            "use_strategy": "none",
+            "use_meta_description": "textual_information(speech bubble)"
+          }
+        ]
+      },
+      {
+        "scene_id": 4,
+        "scene_math_information": [
+          {
+            "object": "Kate",
+            "math_value": "",
+            "semantic": "How many feet long is the couch?",
+            "use_strategy": "final_scene_description",
+            "use_meta_description": "none"
+          }
+        ],
+      }
+    ]
+}
+
+measurement_output = {
+"scenes":[
+  {
+    "scene_id": 1,
+    "object": """
+      - A plain wooden chair (light brown). 
+      - A bold, black, double-headed horizontal arrow extending from the outer edge of the left front leg to the outer edge of the right front leg. 
+      - A centered numeric label '3 ft' placed on the arrow in bold black font. 
+    """,
+    "composition": """
+      - The chair is placed centrally on a neutral background. 
+      - The measurement arrow is positioned horizontally at the ground level, in front of the chair's legs. 
+      - The arrow tips align precisely with the chair's outer left and right front legs. 
+      - The label '3 ft' is centered on the arrow, unobstructed and clearly legible. 
+      - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified. 
+    """,
+    "action": """
+      The physical anchoring of the arrow to the object's boundaries ensures precise measurement, while the speech bubble adds context without duplication.
+    """
+  },
+  {
+    "scene_id": 2,
+    "object": """
+      - A dimension line is used to indicate the width measurement difference between the right edge of the chair and the right edge of the rug.  
+      - The line appears as a bold double-headed arrow extending from the right edge of the chair (position A) to the right edge of the rug (position B).  
+      - A numeric label "5 feet" is placed at the midpoint of the arrow, clearly indicating the measurement.
+    """,
+    "composition": """
+      - The measurement arrow aligns precisely along the front-to-back (width) direction, flush with the right edges of the chair and rug.  
+      - The arrow tips are positioned exactly at position A (right edge of the chair) and position B (right edge of the rug).  
+      - The numeric label "5 feet" is centered along the arrow in a bold, legible font, positioned above the rug to maintain visibility.  
+      - The rug is positioned so that its left edge is aligned with the left edge of the chair, showing that the rug is wider than the chair.  
+      - All objects remain clearly visible, with the arrow overlaying the scene without obstructing the chair or rug textures.
+    """
+  },
+  {
+    "scene_id": 3,
+    "object": """
+      - A wooden board labeled 'comparison list'.
+      - board line1 starts with 🛋️ : 📏📏
+      - board line2 starts with  🎗️ : 📏
+      - Kate (the same character) standing to the left of the board, with her arm extended and pointing toward the board.
+      - A single white speech bubble : 'This represents the width ratio between couch and rug, but now the couch width increased by 2 feet.' 
+    """,
+    "composition": """
+      - The icons are evenly spaced in each row and ':' is used to separate the icons.
+      - Kate stands directly to the left of the board, angled slightly toward it, her pointing gesture drawing attention to the icon rows.
+      - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified. 
+    """,
+    "action": """
+      Kate points directly at the two couch icons on the top row of the board, visually anchoring her combined speech statement to the ratio representation.
+    """
+  },
+  {
+    "scene_id": 4,
+    "object": """
+      - Kate (the same character).
+      - A white speech bubble extending from Kate's mouth, containing the text: 'How many feet long is the couch?'
+    """,
+    "composition": """
+      - Kate stands centered in the scene, facing forward, with no other objects present.
+      - The speech bubble is positioned directly above Kate’s head, with its tail naturally pointing toward her mouth.
+      - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.
+    """,
+    "action": """
+      Kate gazes directly at the viewer while the speech bubble anchors her question.
+    """
+  }
+]
+}
+
+calendar_day_example_input = {
+  "scenes": [
+    {
+      "scene_id": 1,
+      "scene_math_information": [
+        {
+          "object": "Joey",
+          "math_value": "",
+          "semantic": "I played 2 matches today.",
+          "use_strategy": "textual_information(speech bubble)",
+          "use_meta_description": "none"
+        },
+        {
+          "object": "calendar",
+          "math_value": "7",
+          "semantic": "sports club wall",
+          "use_strategy": "none",
+          "use_meta_description": "day_meta_description"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "scene_math_information": [
+        {
+          "object": "Joey",
+          "math_value": 1,
+          "semantic": "I played 1 match today.",
+          "use_strategy": "textual_information(speech bubble)",
+          "use_meta_description": "none"
+        },
+        {
+          "object": "calendar",
+          "math_value": "11",
+          "semantic": "room wall",
+          "use_strategy": "none",
+          "use_meta_description": "day_meta_description"
+        }
+      ]      
+    },
+    {
+      "scene_id": 3,
+      "scene_math_information": [
+        {
+          "object": "Joey",
+          "math_value": "",
+          "semantic": "I played double the matches compared to Monday.",
+          "use_strategy": "textual_information(speech bubble)",
+          "use_meta_description": "none"
+        },
+        {
+          "object": "calendar",
+          "math_value": "12",
+          "semantic": "sports club wall",
+          "use_strategy": "none",
+          "use_meta_description": "day_meta_description"
+        }
+      ]      
+    },
+    {
+      "scene_id": 4,
+      "scene_math_information": [
+        {
+          "object": "Joey",
+          "math_value": "",
+          "semantic": "How many matches did I play last week?",
+          "use_strategy": "final_scene_description",
+          "use_meta_description": "none"
+        }
+      ]
+    } 
+  ]
+}
+
+calendar_day_example_output = {
+  "scenes":[
+    {
+      "scene_id": 1,
+      "object": """
+        - Joey (a boy wearing a green shirt, black shorts, and soccer cleats)
+        - A wall-mounted monthly calendar(The background color is a light beige, while the header area (where "JULY" is written in all capital letters, centered in bold black sans-serif font) is a bright orange, creating a clear visual separation).
+        - The calendar grid has 7 columns labeled with single-letter weekday initials: S, M, T, W, T, F, S (with Sunday on the far left).
+        - calendar has 5 full rows of square date cells representing the days of the month.
+        - Each date from '1' to '31' is shown as a bold black numeral, centered inside its square cell. The first date ('1') appears in the third cell(i.e., Tuesday column) in the first row. The last  date ('31') appears in the fifth cell(i.e., Thursday column) in the fifth row. 
+        - A speech bubble above Joey reads: 'I played 2 matches today.'
+      """,
+      "composition": """
+        - Joey stands slightly to the right side in the foreground, facing forward
+        - The wall calendar is mounted on the upper left of the sports club wall.
+        - The speech bubble floats above Joey's head, with its tail pointing to his mouth
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.
+      """,
+      "action": """ Joey smiles and speaking """
+    },
+    {
+      "scene_id": 2,
+      "object": """
+        - Joey (the same character)
+        - A wall-mounted monthly calendar(The background color is a light beige, while the header area (where "JULY" is written in all capital letters, centered in bold black sans-serif font) is a bright orange, creating a clear visual separation).
+        - The calendar grid has 7 columns labeled with single-letter weekday initials: S, M, T, W, T, F, S (with Sunday on the far left).
+        - calendar has 5 full rows of square date cells representing the days of the month.
+        - Each date from '1' to '31' is shown as a bold black numeral, centered inside its square cell. The first date ('1') appears in the third cell(i.e., Tuesday column) in the first row. The last  date ('31') appears in the fifth cell(i.e., Thursday column) in the fifth row. 
+        - A speech bubble appears above Joey's head, reading: 'I played 1 match today.'
+      """,
+      "composition": """
+        - Joey stands slightly to the right in the foreground of a room field
+        - The wall calendar is clearly mounted on the upper left of the room wall, horizontally centered above Joey
+        - The speech bubble is centered above Joey's head, with the tail pointing to his mouth
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.
+      """,
+      "action": """
+      """
+    },
+   {
+      "scene_id": 3,
+      "object": """
+        - Joey (the same character)
+        - A wall-mounted monthly calendar(The background color is a light beige, while the header area (where "JULY" is written in all capital letters, centered in bold black sans-serif font) is a bright orange, creating a clear visual separation).
+        - The calendar grid has 7 columns labeled with single-letter weekday initials: S, M, T, W, T, F, S (with Sunday on the far left).
+        - calendar has 5 full rows of square date cells representing the days of the month.
+        - Each date from '1' to '31' is shown as a bold black numeral, centered inside its square cell. The first date ('1') appears in the third cell(i.e., Tuesday column) in the first row. The last  date ('31') appears in the fifth cell(i.e., Thursday column) in the fifth row. 
+        - A speech bubble appears above Joey's head, reading: 'I played double the matches compared to Monday.'
+      """,
+      "composition": """
+        - Joey stands slightly to the right in the sports club, facing the calendar
+        - The calendar is mounted on the sports club upper left wall
+        - The grid follows standard structure: '1' appears under the Tuesday column of the first row; '31' appears under the Thursday column of the fifth row
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.
+      """,
+      "action": """
+        Joey while facing and speaking. 
+      """
+    },
+    {
+      "scene_id": 4,
+      "object": """
+        - Joey (the same character)
+        - A thought bubble that reads: 'How many matches did I play last week?'
+      """,
+      "composition": """
+        - Joey stands at the center of an empty, featureless grassy field
+        - No other objects, containers, people, or background elements are present
+        - The thought bubble floats directly above Joey's head, tail pointing to his forehead, indicating internal contemplation
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified. 
+      """,
+      "action": """
+        Joey places his right hand on his chin and looks slightly upward, visually expressing thoughtful reflection. 
+      """
+    }
+  ]
+}
+
+time_span_input = {
+  "scenes": [
+    {
+      "scene_id": 1,
+      "scene_math_information": [
+        {
+          "object": "math homework time",
+          "math_value": "20 minutes",
+          "semantic": "time required to finish math homework",
+          "use_strategy": "none",
+          "use_meta_description": "time_span_meta_description"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "scene_math_information": [
+        {
+          "object": "reading homework time",
+          "math_value": "40 minutes",
+          "semantic": "time required to finish reading homework",
+          "use_strategy": "none",
+          "use_meta_description": "time_span_meta_description"
+        }
+      ]
+    },
+    {
+      "scene_id": 3,
+      "scene_math_information": [
+        {
+          "object": "history homework time",
+          "math_value": "20 minutes",
+          "semantic": "time required to finish history homework",
+          "use_strategy": "none",
+          "use_meta_description": "time_span_meta_description"
+        }
+      ]
+    },
+    {
+      "scene_id": 4,
+      "scene_math_information": [
+        {
+          "object": "available time",
+          "math_value": "3 hours",
+          "semantic": "If I finish all my homework, how long can I nap before dinner(3 hours will begin)?",
+          "use_strategy": "textual_information(speech bubble)",
+          "use_meta_description": "none"
+        },
+        {
+          "object": "",
+          "math_value": "",
+          "semantic": "final question asking about remaining time for nap",
+          "use_strategy": "If I finish all my homework, how long can I nap before dinner(3 hours will begin)?",
+          "use_meta_description": "none"
+        }
+      ]
+    }
+  ]
+}
+
+time_span_output = {
+  "scenes":[
+    {
+      "scene_id": 1,
+      "object": """
+        - John (a boy with brown hair wearing a green shirt)
+        - A single open math textbook with a blue cover placed on a desk
+        - Two analog wall clocks, each with a white circular face and black numerals from 1 to 12
+        - The left clock shows 2:00 (hour hand on 2, minute hand on 12)
+        - The right clock shows 2:20 (hour hand slightly past 2, minute hand on 4)
+        - A bold horizontal arrow spans from the 3 o'clock edge of the left clock to the 9 o'clock edge of the right clock
+        - A centered label above the arrow reads: 'Math Homework Time' in bold black sans-serif font
+      """,
+      "composition": """
+        - The two clocks are horizontally aligned at the top center of the scene, with sufficient spacing between them
+        - The arrow connecting the clocks is centered directly below them and runs perfectly horizontal
+        - The label 'Math Homework Time' is placed directly above the arrow, horizontally centered
+        - The math textbook lies open on the desk in the foreground
+        - John is seated behind the desk, facing the clocks with a focused expression
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified
+      """,
+      "action": """
+        John sits upright at his desk and looks toward the time span diagram above him, 
+        establishing a visual link between himself and the homework duration.
+      """
+    },
+    {
+      "scene_id": 2,
+      "object": """
+        - John (a boy wearing a green shirt and brown hair)
+        - A single open reading book with a red cover placed on the desk
+        - Two analog wall clocks shown side by side
+        - Each clock has a white circular face with black tick marks and bold black numerals from 1 to 12 around the rim
+        - Both clocks have black hour and minute hands: left clock shows 2:20 and right clock shows 3:00
+        - A bold horizontal arrow stretching from the 3 o'clock edge of the left clock to the 9 o'clock edge of the right clock
+        - A centered label above the arrow reading: 'Reading Homework'
+      """,
+      "composition": """
+        - John is seated at his desk, centered in the foreground
+        - The red reading book is open in front of him on the desk
+        - The two clocks are mounted horizontally at eye level on the wall
+        - The left clock shows 2:20 and the right clock shows 3:00, aligned to represent a 40-minute duration
+        - The arrow runs horizontally from the 3 o'clock edge of the left clock to the 9 o'clock edge of the right clock
+        - The bold label 'Reading Homework' is centered above the arrow
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified
+      """,
+      "action": """
+        John is sitting still and attentively looking at the open red reading book. His neutral posture keeps the viewer's focus on the time span and task label, fulfilling the requirement of abstract-only modality encoding.
+      """
+    },
+    {
+      "scene_id": 3,
+      "object": """
+        - John (a boy with brown hair wearing a green shirt)
+        - A single open dark blue history textbook placed on a desk
+        - Two analog wall clocks with white circular faces and bold black numerals from 1 to 12
+        - The left clock shows 3:20 (hour hand between 3 and 4, minute hand on 4)
+        - The right clock shows 3:40 (hour hand between 3 and 4, minute hand on 8)
+        - A bold horizontal arrow spans from the 3 o'clock edge of the left clock to the 9 o'clock edge of the right clock
+        - A centered label above the arrow reads: 'History Homework' in bold black sans-serif font
+      """,
+      "composition": """
+        - The two clocks are displayed side by side along the upper center of the wall, evenly spaced
+        - The arrow is centered horizontally and connects the clocks directly
+        - The label 'History Homework' is centered above the arrow
+        - The dark blue history textbook is open on the desk in the foreground
+        - John stands slightly behind the desk, facing the clocks with a focused gaze
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified
+      """,
+      "action": """
+        John stands behind the desk and looks up at the clock pair, 
+        visually linking the history homework task to the abstract time span above.
+      """
+    },
+    {
+      "scene_id": 4,
+      "object": """
+        - John (a boy with brown hair wearing a green shirt)
+        - A neatly arranged bed with a pillow and folded blanket
+        - A thought bubble above John's head with the text: 'If I finish all my homework, how long can I nap before dinner(3 hours will begin)?'
+      """,
+      "composition": """
+        - The bed is positioned centrally in the foreground, drawing the viewer's attention
+        - John stands slightly behind the bed, facing it directly with a thoughtful expression
+        - The thought bubble is placed above John's head, with the tail gently curving to point toward his head
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified
+      """,
+      "action": """
+        John stands calmly beside the bed, body subtly tilted forward, and looks at the bed with a reflective gaze. 
+        This physical posture supports the semantic function of the thought bubble, visually grounding the final problem statement.
+      """
+    }
+  ]
+}
+
+weight_and_time_input = {
+  "scenes": [
+    {
+      "scene_id": 1,
+      "scene_math_information": [
+        {
+          "object": "meat",
+          "math_value": "15kg",
+          "semantic": "amount of meat sold each hour",
+          "use_strategy": "none",
+          "use_meta_description": "weight_meta_description"
+        },
+        {
+          "object": "sell time",
+          "math_value": "per hour",
+          "semantic": "selling rate per unit of time",
+          "use_strategy": "none",
+          "use_meta_description": "time_span_meta_description"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "scene_math_information": [
+        {
+          "object": "work time",
+          "math_value": "10 hours",
+          "semantic": "Prince's daily working hours",
+          "use_strategy": "none",
+          "use_meta_description": "time_span_meta_description"
+        }
+      ]
+    },
+    {
+      "scene_id": 3,
+      "scene_math_information": [
+        {
+          "object": "bull",
+          "math_value": "750kg",
+          "semantic": "total meat weight from the bull",
+          "use_strategy": "none",
+          "use_meta_description": "weight_meta_description"
+        }
+      ]
+    },
+    {
+      "scene_id": 4,
+      "scene_math_information": [
+        {
+          "object": "",
+          "math_value": "",
+          "semantic": "How many days will it take to sell all the meat from the bull?",
+          "use_strategy": "final_scene_description",
+          "use_meta_description": "none"
+        }
+      ]
+    }
+  ]
+}
+
+weight_and_time_output = {
+  "scenes": [
+    {
+      "scene_id": 1,
+      "object": """
+        - Prince (white apron, striped shirt)
+        - A large raw meat chunk placed on a digital scale
+        - Digital scale with front-facing display showing '15kg' in bold black digits
+        - Two analog wall clocks:
+          - Left clock shows 2:00 (hour hand at 2, minute hand at 12)
+          - Right clock shows 3:00 (hour hand at 3, minute hand at 12)
+        - A bold horizontal arrow between the clocks
+        - A centered label above the arrow reads: 'Hourly Work'
+      """,
+      "composition": """
+        - The meat and scale are centered in the foreground
+        - The digital screen faces directly outward to display '15kg' clearly
+        - The two clocks are horizontally aligned above the scale with ample spacing
+        - The arrow connects the clocks, and the label is positioned centrally above it
+        -All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified
+      """,
+      "action": """
+        Prince stands behind the digital scale, extending his right hand toward the meat to visually anchor the '15kg' weight. 
+        His eyes are directed upward toward the clocks, guiding the viewer's attention to the one-hour span. 
+      """
+    },
+    {
+      "scene_id": 2,
+      "object": """
+        - Two analog wall clocks:
+          - Left clock shows 8:00 AM (hour hand on 8, minute hand on 12)
+          - Right clock shows 6:00 PM (hour hand on 6, minute hand on 12)
+        - A bold horizontal arrow between the clocks
+        - A centered label above the arrow: 'Daily Working Time'
+        - Prince (white apron, striped shirt).
+      """,
+      "composition": """
+        - The two clocks are horizontally aligned at the top center of the frame with ample spacing
+        - A bold arrow connects the 3 o'clock edge of the left clock to the 9 o'clock edge of the right clock
+        - The label 'Daily Working Time' is centered directly above the arrow in bold sans-serif font
+        - Prince stands below the clocks in the lower foreground
+        -All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified
+      """,
+      "action": """
+        Prince stands upright beneath the clocks, with one arm relaxed and the other gently raised with an open palm, 
+        gesturing toward the time span above. His gaze is directed upward at the clocks, reinforcing the conceptual link to his daily 10-hour work schedule.
+      """
+    },
+    {
+      "scene_id": 3,
+      "object": """
+        - A large brown bull, standing squarely on a digital weighing scale
+        - Digital scale with a rectangular front-facing display reading '750 kg' in bold black digits
+        - Prince (white apron, striped shirt) standing to the right of the bull
+        - Bill (brown hat, plaid shirt) holding the bull's rope on the left side
+      """,
+      "composition": """
+        - The bull and scale are centered in the foreground, with the bull's body fully on the platform
+        - The scale's display is placed on the front edge, tilted toward the viewer for readability
+        - Prince and Bill stand equidistant on either side of the bull with neutral postures
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified
+      """,
+      "action": """
+        Bill lightly holds the rope tied to the bull's harness without pulling. Prince stands calmly on the other side, arms relaxed, 
+        looking directly at the scale display. No pointing, labels, or speech bubbles are used, allowing the digital scale to serve as the exclusive focus for expressing the abstract math value.
+      """
+    },
+    {
+      "scene_id": 4,
+      "object": """
+        - Prince (white apron, striped shirt) standing alone
+        - A speech bubble above Prince's head, reading: 'How many days will it take to sell all the meat from the bull?'
+      """,
+      "composition": """
+        - Prince is centered against a plain light-gray background
+        - The speech bubble is placed above his head with a tail pointing clearly to his mouth
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified
+      """,
+      "action": """
+        Prince stands with a calm, upright posture. He gazes slightly upward, signaling contemplation. 
+        His mouth is slightly open as if asking the question, anchoring the semantic function of the speech bubble.
+      """
+    }
+  ]
+}
+
+icon_ratio_input = {
+  "scenes": [
+    {
+      "scene_id": 1,
+      "scene_math_information": [
+        {
+          "object": "Large stuffed animal price | Small stuffed animal price",
+          "math_value": "3 | 1",
+          "semantic": "money bag icon | money bag icon",
+          "use_strategy": "none",
+          "use_meta_description": "icon_ratio_meta_description"
+        },
+        {
+          "object": "Large stuffed animal sold quantity | Small stuffed animal sold quantity",
+          "math_value": "1 | 2",
+          "semantic": "red square icon | blue square icon",
+          "use_strategy": "none",
+          "use_meta_description": "icon_ratio_meta_description"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "scene_math_information": [
+        {
+          "object": "US bill",
+          "math_value": "$120",
+          "semantic": "these are the money I earned from the sales today",
+          "use_strategy": "textual_information(label)",
+          "use_meta_description": "none"
+        },
+        {
+          "object": "total sales revenue",
+          "math_value": "$120",
+          "semantic": "these are the money I earned from the sales today",
+          "use_strategy": "textual_information(speech bubble)",
+          "use_meta_description": "none"
+        },
+        {
+          "object": "small stuffed animal price",
+          "math_value": "$4",
+          "semantic": "price of each small stuffed animal",
+          "use_strategy": "textual_information(label)",
+          "use_meta_description": "none"
+        }
+      ]
+    },
+    {
+      "scene_id": 3,
+      "scene_math_information": [
+        {
+          "object": "",
+          "math_value": "",
+          "semantic": "How many small stuffed animals did I sell?",
+          "use_strategy": "final_scene_description",
+          "use_meta_description": "none"
+        }
+      ]
+    }
+  ]
+}
+
+icon_ratio_output = {
+  "scenes": [
+    {
+      "scene_id": 1,
+      "object": """ 
+        - A board labeled 'comparison list'.
+        - board line1 starts with: Large stuffed animal price : 💰💰💰
+        - board line2 starts with: Small stuffed animal price : 💰
+        - board line3 starts with: Large stuffed animal sold quantity : 🟥
+        - board line4 starts with: Small stuffed animal sold quantity : 🟦🟦
+        - Teresa (light blue shirt, ponytail)
+        - A speech bubble above Teresa: "This represents the price ratio and sold ratio between large and small stuffed animals"
+      """,
+      "composition": """
+        - The textual labels and icons are evenly spaced in each row and ':' is used to separate the label(description) and icons.
+        - Teresa stands on the left side of the board, facing toward it
+        - The speech bubble is placed above Teresa’s head, with a tail pointing to her mouth.
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.
+      """,
+      "action": """
+        - Teresa points at the board with her right hand, specifically gesturing toward the center rows
+        - Her torso is angled slightly toward the board, anchoring the explanation visually
+      """
+    },
+    {
+      "scene_id": 2,
+      "object": """
+        - Teresa (the same character as in scene 1)
+        - A cash register drawer open only with a visible large US bill on top of the drawer, labeled with '$120' in bold black print
+        - A small stuffed animal (red) on the counter, with a price tag labeled '$4' attached to its foot
+        - A speech bubble above Teresa’s head: 'these are the money I earned from the sales today'
+      """,
+      "composition": """
+        - Teresa stands behind a store counter, facing forward
+        - The cash register drawer is open in front of her, centered in the lower foreground
+        - The US bill is placed clearly on top of the drawer, with the '$120' label directly printed on the bill surface
+        - The small red stuffed animal is placed to the right side of the register, with the '$4' price tag visible on its foot
+        - The speech bubble appears above Teresa’s head, with a tail pointing to her mouth
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified
+      """,
+      "action": """
+        - Teresa gestures calmly toward the open register with one hand, reinforcing the revenue value
+      """
+    },
+    {
+      "scene_id": 3,
+      "object": """
+        - Teresa (the same character as in scene 1)
+        - A speech bubble above her head: 'How many small stuffed animals did I sell?'
+      """,
+      "composition": """
+        - Teresa is centered against a plain soft-gray background
+        - The speech bubble is placed above her head with a clear tail to her mouth
+        - No cash, labels, or icons are present — minimal layout to focus attention
+        - All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified
+      """,
+      "action": """
+        - Teresa gazes slightly upward with a neutral expression, mouth slightly open in questioning gesture
+      """
+    }
+  ]
+}
+
+graph_ratio_input = {
+  "scenes": [
+    {
+      "scene_id": 1,
+      "scene_math_information": [
+        {
+          "object": "green | gray",
+          "math_value": "2 | 3",
+          "semantic": "easy item | other item.",
+          "use_strategy": "none",
+          "use_meta_description": "graph_ratio_meta_description"
+        }, 
+        {
+          "object": "yellow | red",
+          "math_value": "1 | 1",
+          "semantic": "average item | difficult item.",
+          "use_strategy": "none",
+          "use_meta_description": "graph_ratio_meta_description"
+        },
+        {
+          "object": "",
+          "math_value": "",
+          "semantic": "Aries points to the chart",
+          "use_strategy": "action",
+          "use_meta_description": "none"
+        }
+      ]
+    },
+    {
+      "scene_id": 2,
+      "scene_math_information": [
+        {
+          "object": "green | gray",
+          "math_value": "2 | 1",
+          "semantic": "correct in easy item | wrong in easy item.",
+          "use_strategy": "none",
+          "use_meta_description": "graph_ratio_meta_description"
+        },
+        {
+          "object": "yellow | gray",
+          "math_value": "1 | 1",
+          "semantic": "correct in average item | wrong in average item.",
+          "use_strategy": "none",
+          "use_meta_description": "graph_ratio_meta_description"
+        },
+        {
+          "object": "red | gray",
+          "math_value": "1 | 1",
+          "semantic": "correct in difficult item | wrong in difficult item.",
+          "use_strategy": "none",
+          "use_meta_description": "graph_ratio_meta_description"
+        },
+        {
+          "object": "",
+          "math_value": "",
+          "semantic": "Aries points to the chart",
+          "use_strategy": "action",
+          "use_meta_description": "none"
+        }
+      ]
+    },
+    {
+      "scene_id": 3,
+      "scene_math_information": [
+        {
+          "object": "Aries",
+          "math_value": "",
+          "semantic": "How many points am I sure to get?",
+          "use_strategy": "final_scene_description",
+          "use_meta_description": "none"
+        }
+      ]
+    }
+  ]
+}
+
+graph_ratio_output = {
+  "scenes": [
+    {
+      "scene_id": 1,
+      "object": "- A single circle visually displayed as a pie chart for the ratio of green and gray segments.\n- The circle is divided into 5 equal segments: the first 2 segments are filled with solid green ( label: 40%), the next 3 segments are filled with solid gray (label: 60%).\n- Below this pie chart is a legend:\n - A small green square followed by the text 'easy item'.\n - A small gray square followed by the text 'other item'.\n\n- A separate single circle is visually displayed as a pie chart for the ratio of yellow and red segments.\n- The circle is divided into 2 equal segments: the first 1 segment is filled with solid yellow (label: 50%), the next 1 segment is filled with solid red (label: 50%).\n- Below this pie chart is a legend:\n - A small yellow square followed by the text 'average item'.\n - A small red square followed by the text 'difficult item'.", 
+      "composition": "- The two pie charts are placed side by side horizontally at the center of the scene.\n- Label placement & style for each chart (labels appear only on/in the pie slices, NOT in the legend):\n - Green/Gray chart: render black text label \"40%\" centered over the green wedge cluster and black text label \"60%\" centered over the gray wedge cluster.\n- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.", 
+      "action": "Aries points at the pie charts with an extended index finger.",
+    },
+    {
+      "scene_id": 2,
+      "object": "- A single circle visually displayed as a pie chart for the ratio of green and gray segments.\n- The circle is divided into 4 equal segments: the first 3 segments are filled with solid green (label: 2/3), the next 1 segment is filled with solid gray (label: 1/3).\n- Below this pie chart is a legend:\n    - A small green square followed by the text 'correct in easy item'.\n    - A small gray square followed by the text 'wrong in easy item'.\n\n- A separate single circle is visually displayed as a pie chart for the ratio of yellow and gray segments.\n- The circle is divided into 2 equal segments: the first 1 segment is filled with solid yellow (label: 50%), the next 1 segment is filled with solid gray (label: 50%).\n- Below this pie chart is a legend:\n    - A small yellow square followed by the text 'correct in average item'.\n    - A small gray square followed by the text 'wrong in average item'.\n\n- A separate single circle is visually displayed as a pie chart for the ratio of red and gray segments.\n- The circle is divided into 2 equal segments: the first 1 segment is filled with solid red (label: 50%), the next 1 segment is filled with solid gray (label: 50%).\n- Below this pie chart is a legend:\n    - A small red square followed by the text 'correct in difficult item'.\n    - A small gray square followed by the text 'wrong in difficult item'.",
+      "composition": "- The three pie charts are placed side by side horizontally at the center of the scene.\n- Each pie is rendered in clean, high-contrast vector style. \n- Label placement & style for each chart (labels appear only on/in the pie slices, NOT in the legend):\n    - Green/Gray chart: render black text label \"2/3\" centered over the green wedge cluster and black text label \"1/3\" centered over the gray wedge cluster.\n    - Yellow/Gray chart: render black text label \"50%\" centered over the yellow wedge and black text label \"50%\" centered over the gray wedge.\n    - Red/Gray chart: render black text label \"50%\" centered over the red wedge and black text label \"50%\" centered over the gray wedge.\n- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.",
+      "action": "Aries points at the pie charts with an extended index finger."
+    },
+    {
+      "scene_id": 3,
+      "object": "- Aries (the same character with blue shirt, black hair, and round glasses) is present.\n- A large speech bubble above Aries's head with the full text: “How many points am I sure to get?”",
+      "composition": "- Aries stands centrally in the scene, facing forward.\n- The speech bubble is above Aries’s head, with its tail pointing to Aries’s mouth. The text is fully legible and the bubble does not overlap any other object.\n- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.",
+      "action": "Aries looks forward, gaze focused, and the tail of the speech bubble points toward Aries’s mouth."
+    }
+  ]
+}
+
+graph_ratio_cot = """
+Step 1: Parse the Input
+There are three scenes (scene_id: 1, 2, 3), each containing several scene_math_information entries.
+Each entry provides object, math_value, semantic, use_strategy, and use_meta_description.
+
+Step 2: Process Each Scene Individually
+Scene 1
+Analyze scene_math_information:
+Entry 1:
+object: "green | gray"
+math_value: "4 | 6"
+semantic: "easy item | other item."
+use_meta_description: "graph_ratio_meta_description"
+
+Entry 2:
+object: "yellow | red"
+math_value: "10 | 10"
+semantic: "average item | difficult item."
+use_meta_description: "graph_ratio_meta_description"
+
+Entry 3:
+object: ""
+semantic: "Aries points to the chart"
+use_strategy: "action"
+use_meta_description: "none"
+Apply Strategy Priority Rule:
+For Entry 1 & 2:
+Since use_meta_description is not "none", must follow the graph_ratio_meta_description.
+This requires a pie chart for each ratio, with segments colored according to the order and labeled as in the legend below each chart.
+
+For Entry 3:
+Since use_meta_description is "none", use the action strategy from the global rules.
+The character Aries must perform a visual linking gesture (pointing).
+Determine object, composition, action fields:
+object:
+Both pie charts are present, each with their own legend as required by the meta description.
+Aries must appear (named, with fixed traits, e.g., blue shirt, black hair, round glasses).
+
+composition:
+Pie charts are horizontally aligned, with legends beneath.
+Aries is positioned in the foreground, facing the charts.
+- Both all 10 segments are equal in size, arranged in a complete radial pattern. \n - Each segment is outlined with a thin white boundary, ensuring that even adjacent segments of the same color remain visibly separated.
+At the end: “All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.”
+action:
+
+Aries points at the charts with an extended finger, per the linking gesture strategy.
+Scene 2
+Analyze scene_math_information:
+green | gray, "15 | 5", "correct in easy item | wrong in easy item.", graph_ratio_meta_description
+yellow | gray, "10 | 10", "correct in average item | wrong in average item.", graph_ratio_meta_description
+red | gray, "10 | 10", "correct in difficult item | wrong in difficult item.", graph_ratio_meta_description
+Action: "Aries points to the chart", action
+Apply Strategy Priority Rule:
+All three ratio entries: follow graph_ratio_meta_description. Each must be a separate pie chart with its specific colors, values, and legends.
+Action entry: handled as above (visual anchoring by Aries).
+Determine Fields:
+object:
+Three pie charts, each with their own legends, plus Aries with fixed visual traits.
+composition:
+Three pie charts arranged horizontally, legends beneath.
+- All 20 segments are equal in size, arranged in a complete radial pattern. \n - Each segment is outlined with a thin white boundary, ensuring that even adjacent segments of the same color remain visibly separated.
+Aries in the foreground, facing and pointing toward the charts.
+Finish with the “all objects mentioned…” sentence.
+action:
+Aries points at the charts.
+
+Scene 3
+Analyze scene_math_information:
+object: "Aries"
+math_value: ""
+semantic: "How many points am I sure to get?"
+use_strategy: "final_scene_description"
+use_meta_description: "none"
+Apply Strategy Priority Rule:
+use_strategy is "final_scene_description", so apply the final scene template.
+Aries must appear, with a speech bubble containing the exact semantic text.
+Only one speech bubble, above Aries’s head, tail pointing to the mouth.
+Determine Fields:
+object:
+Aries (same visual traits as previous scenes)
+A large speech bubble above Aries with the exact text: "How many points am I sure to get?"
+composition:
+Aries is centered, facing forward.
+Speech bubble above Aries’s head, tail pointing to Aries’s mouth.
+Bubble text is fully legible and does not overlap anything.
+Conclude with the “all objects mentioned…” clause.
+action:
+Aries looks forward, the bubble's tail points toward Aries’s mouth.
+
+Step 3: Synthesize Structured Output
+For each scene, aggregate all fields above, ensuring:
+All elements from each math information are present once and only once.
+No visual ambiguity or overlap.
+All visual/textual anchors (pointing, bubble) are strictly in line with rules.
+
+Step 4: Output (as previously given)
+Produce the output as structured JSON for all scenes, exactly as in the previous response.
+"""
+
+measurement_input2 = {
+    "scenes": [
+      {
+        "scene_id": 1,
+        "scene_math_information": [
+          {
+            "object": "box",
+            "math_value": "3",
+            "semantic": "on the floor next to John",
+            "use_strategy": "visual_detail",
+            "use_meta_description": "none"
+          },
+          {
+            "object": "John",
+            "math_value": "",
+            "semantic": "I have these boxes.",
+            "use_strategy": "textual_information(speech bubble)",
+            "use_meta_description": "none"
+          },
+          {
+            "object": "",
+            "math_value": "",
+            "semantic": "John points to the boxes in the square.",
+            "use_strategy": "action",
+            "use_meta_description": "none"
+          },
+          {
+            "object": "box",
+            "math_value": "5 inches",
+            "semantic": "length",
+            "use_strategy": "none",
+            "use_meta_description": "object_measurement_meta_description"
+          },
+          {
+            "object": "box",
+            "math_value": "6 inches",
+            "semantic": "width",
+            "use_strategy": "none",
+            "use_meta_description": "object_measurement_meta_description"
+          },
+          {
+            "object": "box",
+            "math_value": "4 inches",
+            "semantic": "height",
+            "use_strategy": "none",
+            "use_meta_description": "object_measurement_meta_description"
+          },
+          {
+            "object": "the wall of the box",
+            "math_value": "1 inch",
+            "semantic": "thick",
+            "use_strategy": "none",
+            "use_meta_description": "object_measurement_meta_description"
+          }
+        ]
+      },
+      {
+        "scene_id": 2,
+        "scene_math_information": [
+          {
+            "object": "John",
+            "math_value": "",
+            "semantic": "What is the total inner volume of all my boxes?",
+            "use_strategy": "final_scene_description",
+            "use_meta_description": "none"
+          }
+        ]
+      }
+    ]
+}
+
+measurement_output2 = {
+  "scenes": [
+    {
+      "scene_id": 1,
+      "object": 
+        "- John, wearing a blue shirt, stands on the left side of the scene.\n" +
+        "- Three distinct boxes are arranged in a row on the floor next to John.\n" +
+        "- Above John's head is a single speech bubble that says: \"I have these boxes.\"\n" +
+        "- Each box is depicted as a three-dimensional object, fully visible and not overlapping, located within a lightly outlined square area.\n" +
+        "- One box is centrally displayed and has three dimension lines: a bold horizontal double-headed arrow labeled \"5 inches\" for length, a front-to-back arrow labeled \"6 inches\" for width, and a vertical arrow labeled \"4 inches\" for height. On the wall cross-section of the box, a short double-headed arrow is labeled \"1 inch\" for thickness.",
+      "composition":
+        "- John stands to the left, gesturing toward the three boxes which are arranged in a neat row on the floor beside him, each clearly separated. The speech bubble emerges above John's head, its tail pointing directly to his mouth and positioned to avoid overlapping any box. " +
+        "- The outlined square area on the floor contains the three boxes; all are fully visible and separated by small gaps. The central box is shown with dimension arrows: '5 inches' (length) runs left to right, '6 inches' (width) front to back, '4 inches' (height) bottom to top. The '1 inch' thickness arrow appears on a slightly cut-away wall panel of the central box. " +
+        "- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.",
+      "action":
+        "- John points at the boxes in the square."
+    },
+    {
+      "scene_id": 2,
+      "object":
+        "- John (same appearance as previous scene), standing in the same position.\n" +
+        "- A speech bubble above John’s head, stating: \"What is the total inner volume of all my boxes?\"",
+      "composition":
+        "- John remains in the same spot as the previous scene. The speech bubble appears above his head with the tail pointing to his mouth, unobstructed by any other objects or text. " +
+        "- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.",
+      "action":
+        "- John looks directly at the viewer as he asks the question."
+    }
+  ]
+}
+
+
+dashboard_input = {
+    "scenes": [
+      {
+        "scene_id": 1,
+        "interfere": "none",
+        "scene_math_information": [
+          {
+            "raw_math_information": "John drives for 3 hours at a speed of 60 mph",
+            "object": "dashboard on the car" ,
+            "math_value": "60 mph",
+            "semantic": "120 | 5 | 10",
+            "use_strategy": "none",
+            "use_meta_description": "dashboard_meta_description"
+          },
+          {
+            "raw_math_information": "John drives for 3 hours at a speed of 60 mph",
+            "object": "clock",
+            "math_value": "1:00",
+            "semantic": "road",
+            "use_strategy": "none",
+            "use_meta_description": "cross_scene_clock_meta_description"
+          },
+          {
+            "raw_math_information": "John drives for 3 hours at a speed of 60 mph",
+            "object": "John",
+            "math_value": "",
+            "semantic": "I will keep driving.",
+            "use_strategy": "textual_information(speech bubble)",
+            "use_meta_description": "none"
+          }
+        ]
+      },
+      {
+        "scene_id": 2,
+        "interfere": "none",
+        "scene_math_information": [
+          {
+            "raw_math_information": "John drives for 3 hours at a speed of 60 mph",
+            "object": "clock",
+            "math_value": "4:00",
+            "semantic": "road",
+            "use_strategy": "none",
+            "use_meta_description": "cross_scene_clock_meta_description"
+          },
+          {
+            "raw_math_information": "John drives for 3 hours at a speed of 60 mph + He tries to get home in 4 hours",
+            "object": "John",
+            "math_value": "",
+            "semantic": "I have to turn around and back home in 4 hours.",
+            "use_strategy": "textual_information(speech bubble)",
+            "use_meta_description": "none"
+          }
+        ]
+      },
+      {
+        "scene_id": 3,
+        "interfere": "none",
+        "scene_math_information": [
+          {
+            "raw_math_information": "He tries to get home in 4 hours but spends the first 2 hours in standstill traffic.",
+            "object": "clock",
+            "math_value": "6:00",
+            "semantic": "road",
+            "use_strategy": "none",
+            "use_meta_description": "cross_scene_clock_meta_description"
+          },
+          {
+            "raw_math_information": "He tries to get home in 4 hours but spends the first 2 hours in standstill traffic.",
+            "object": "John",
+            "math_value": "",
+            "semantic": "The traffic finally started moving.",
+            "use_strategy": "textual_information(speech bubble)",
+            "use_meta_description": "none"
+          },
+          {
+            "raw_math_information": "He tries to get home in 4 hours but spends the first 2 hours in standstill traffic.",
+            "object": "",
+            "math_value": "",
+            "semantic": "John looks frustrated and taps the steering wheel",
+            "use_strategy": "action",
+            "use_meta_description": "none"
+          }
+        ]
+      },
+      {
+        "scene_id": 4,
+        "interfere": "none",
+        "scene_math_information": [
+          {
+            "raw_math_information": "He spends the next half-hour driving at a speed of 30mph",
+            "object": "clock",
+            "math_value": "6:30",
+            "semantic": "road",
+            "use_strategy": "none",
+            "use_meta_description": "cross_scene_clock_meta_description"
+          },
+          {
+            "raw_math_information": "He spends the next half-hour driving at a speed of 30mph",
+            "object": "dashboard on the car",
+            "math_value": "30 mph",
+            "semantic": "120 | 5 | 10",
+            "use_strategy": "none",
+            "use_meta_description": "dashboard_meta_description"
+          },
+          {
+            "raw_math_information": "He spends the next half-hour driving at a speed of 30mph",
+            "object": "",
+            "math_value": "",
+            "semantic": "John grips the steering wheel and looks relieved",
+            "use_strategy": "action",
+            "use_meta_description": "none"
+          }
+        ]
+      },
+      {
+        "scene_id": 5,
+        "interfere": "none",
+        "scene_math_information": [
+          {
+            "raw_math_information": "before being able to drive the remaining time of the 4 hours going at 80 mph",
+            "object": "dashboard on the car",
+            "math_value": "80 mph",
+            "semantic": "120 | 5 | 10",
+            "use_strategy": "none",
+            "use_meta_description": "dashboard_meta_description"
+          },
+          {
+            "raw_math_information": "before being able to drive the remaining time of the 4 hours going at 80 mph",
+            "object": "John",
+            "math_value": "",
+            "semantic": "Now I can really speed up.",
+            "use_strategy": "textual_information(speech bubble)",
+            "use_meta_description": "none"
+          },
+          {
+            "raw_math_information": "before being able to drive the remaining time of the 4 hours going at 80 mph",
+            "object": "",
+            "math_value": "",
+            "semantic": "John gesture at the dashboard",
+            "use_strategy": "action",
+            "use_meta_description": "none"
+          }
+        ]
+      },
+      {
+        "scene_id": 6,
+        "interfere": "none",
+        "scene_math_information": [
+          {
+            "raw_math_information": "How far is he from home at the end of those 4 hours?",
+            "object": "John",
+            "math_value": "",
+            "semantic": "How far am I from home after all this?",
+            "use_strategy": "final_scene_description",
+            "use_meta_description": "none"
+          }
+        ]
+      }
+    ]
+}
+
+dashboard_output = {
+  "scenes": [
+    {
+      "scene_id": 1,
+      "object": "- A dashboard(No Needle) with a perfect circular dial, scale markings from 0 to 120, tick marks every 5 mph, every 10 mph numerically labeled. The label 'MPH' appears at the bottom of the dial.\n- A wall clock has a light beige background circular face, and thick, dark blue border frame, with clearly drawn black tick marks and bold black numerals from 1 to 12 evenly spaced around the rim. The black hour and minute hands indicating 1:00.\n- John (short brown hair, green t-shirt, blue jeans, hands on steering wheel) is visible in the driver's seat.\n- A speech bubble above John’s head stating: 'I will keep driving.'",
+      "composition": "- The dashboard is in front of John.\n- The wall clock is placed in the upper-right of the road background.\n- John is seated centrally, facing forward, with the speech bubble above his head, tail pointing to his mouth.\n- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.",
+      "action": "John’s gaze is directed toward the dashboard and he faces forward."
+    },
+    {
+      "scene_id": 2,
+      "object": "- The same wall clock has a light beige background circular face, and thick, dark blue border frame, with clearly drawn black tick marks and bold black numerals from 1 to 12 evenly spaced around the rim. The black hour and minute hands indicating 4:00.\n- John (the same character).\n- A speech bubble above John’s head stating: 'I have to turn around and back home in 4 hours.'",
+      "composition": "- The wall clock is placed in the upper-right of the road background.\n- John is seated centrally, facing forward, with the speech bubble above his head, tail pointing to his mouth.\n- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.",
+      "action": "John’s gaze is directed forward toward the road."
+    },
+    {
+      "scene_id": 3,
+      "object": "- The same wall clock has a light beige background circular face, and thick, dark blue border frame, with clearly drawn black tick marks and bold black numerals from 1 to 12 evenly spaced around the rim. The black hour and minute hands indicating 6:00.\n- John (the same character) is in the driver’s seat.\n- A speech bubble above John’s head stating: 'The traffic finally started moving.'",
+      "composition": "- The wall clock is placed in the upper-right of the road background.\n- John is seated centrally in the car, face looking ahead.\n- The speech bubble is above John’s head, tail pointing to his mouth.\n- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.",
+      "action": "John looks frustrated and taps the steering wheel."
+    },
+    {
+      "scene_id": 4,
+      "object": "- The same wall clock has a light beige background circular face, and thick, dark blue border frame, with clearly drawn black tick marks and bold black numerals from 1 to 12 evenly spaced around the rim. The black hour and minute hands indicating 6:30.\n- The same dashboard((No Needle)), scale markings from 0 to 120, tick marks every 5 mph, every 10 mph numerically labeled. The label 'MPH' appears at the bottom of the dial.\n- John (same as before) in the driver’s seat.",
+      "composition": "- The dashboard is in front of John, visible from his perspective, angled for easy reading.\n- The wall clock is placed in the upper-right of the road background.\n- John is seated centrally, gripping the steering wheel and looking relieved.\n- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.",
+      "action": "John grips the steering wheel and looks relieved."
+    },
+    {
+      "scene_id": 5,
+      "object": "- The same dashboard((No Needle))  with a perfect circular dial, scale markings from 0 to 120, tick marks every 5 mph, every 10 mph numerically labeled. The label 'MPH' appears at the bottom of the dial.\n- John (same as before) in the driver’s seat.\n- A speech bubble above John’s head stating: 'Now I can really speed up.'",
+      "composition": "- The dashboard is in front of John, visible from his perspective, angled for easy reading.\n- John is seated centrally, facing forward, with the speech bubble above his head, tail pointing to his mouth.\n- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.",
+      "action": "John look at the dashboard."
+    },
+    {
+      "scene_id": 6,
+      "object": "- John (same as before) is present in the scene.\n- A large speech bubble above John’s head stating: 'How far am I from home after all this?'",
+      "composition": "- John stands centrally in the scene, facing forward.\n- The speech bubble is above John’s head, with its tail pointing to John’s mouth. The text is fully legible and the bubble does not overlap any other object.\n- All objects mentioned in the scene are clearly visible and not overlapping; each is distinctly separated so that every object can be easily identified.",
+      "action": "John looks forward; the tail of the speech bubble points toward his mouth."
+    }
+  ]
+}
+

@@ -1,0 +1,43 @@
+# Core dependencies for GSM8K-V benchmark construction and evaluation
+
+# OpenAI API client for GPT models
+openai
+
+# Data validation and serialization
+pydantic
+
+# Web framework for human annotation interface
+streamlit
+
+# Image processing
+Pillow
+
+# File locking for concurrent access
+filelock
+
+# Asynchronous HTTP client for API models
+aiohttp
+
+# Progress bars for evaluation
+tqdm
+
+# For Gemini API (if using google-generativeai)
+google-generativeai
+
+# For Anthropic Claude API (if using anthropic)
+anthropic
+
+# For Qwen API (if using dashscope)
+dashscope
+
+# For ZhipuAI API
+zhipuai
+
+# For local model inference via vLLM
+vllm
+
+# For numpy operations in seeding
+numpy
+
+# Note: Python 3.10+ is recommended
+# Install with: pip install -r requirements.txt

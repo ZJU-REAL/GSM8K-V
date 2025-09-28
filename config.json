@@ -1,0 +1,83 @@
+{
+    "data_path": "data/metadata/meta.json",
+    "image_dir": "/root/autodl-tmp/gsm8k-v/data",
+    "results_dir": "results",
+    "modes": ["visual", "text_only"],
+    "prompt_modes": ["implicit", "explicit"],
+    "seed": 42,
+    "num_samples": null,
+    "metadata_dir": "data/metadata",
+    "data_categories": [
+      "measurement",
+      "physical_metric",
+      "ratio_percentage",
+      "signboard_and_icon",
+      "temporal",
+      "other"
+    ],
+    "evaluation_type": "vllm",
+    "vllm_models": {
+      "ovis": {
+        "enabled": true,
+        "concurrency": 32,
+        "api_base": "http://localhost:8006/v1",
+        "description": "Ovis2.5-2B multimodal model via vLLM"
+      },
+      "ovis2.5-2b": {
+        "enabled": true,
+        "concurrency": 16,
+        "api_base": "http://localhost:8006/v1",
+        "description": "Ovis2.5-2B multimodal model via vLLM"
+      },
+      "minicpm-v-4_5":{
+        "enabled": true,
+        "concurrency": 16,
+        "api_base": "http://localhost:8007/v1",
+        "description": "MiniCPM-V-4.5 multimodal model via vLLM"
+      },
+      "llama-4-17b-128e-instruct": {
+        "enabled": true,
+        "concurrency": 16,
+        "api_base": "http://localhost:8000/v1",
+        "description": "Meta Llama-4 Maverick 17B-128E Instruct via vLLM"
+      },
+      "llama-4-17b-16e-instruct": {
+        "enabled": true,
+        "concurrency": 16,
+        "api_base": "http://localhost:8001/v1",
+        "description": "Meta Llama-4 Scout 17B-16E Instruct via vLLM"
+      },
+      "internvl3.5-38b": {
+        "enabled": true,
+        "concurrency": 16,
+        "api_base": "http://localhost:8002/v1",
+        "description": "InternVL3.5-38B multimodal model via vLLM"
+      },
+      "internvl3.5-8b": {
+        "enabled": true,
+        "concurrency": 16,
+        "api_base": "http://localhost:8006/v1",
+        "description": "InternVL3.5-8B multimodal model via vLLM"
+      },
+      "internvl3.5-30b-a3b": {
+        "enabled": true,
+        "concurrency": 16,
+        "api_base": "http://localhost:8003/v1",
+        "description": "InternVL3.5-30B-A3B multimodal model via vLLM"
+      },
+      "internvl3.5-241b-a28b": {
+        "enabled": true,
+        "concurrency": 16,
+        "api_base": "http://localhost:8004/v1",
+        "description": "InternVL3.5-241B-A28B multimodal model via vLLM"
+      }
+    },
+    "api_models": {
+      "gpt-4o": {
+        "enabled": false,
+        "concurrency": 16,
+        "description": "GPT-4o API model"
+      }
+    }
+  }
+  

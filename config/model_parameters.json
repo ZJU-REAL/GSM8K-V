@@ -1,0 +1,24 @@
+{
+  "model_defaults": {
+    "temperature": 0.1,
+    "max_tokens": 2048
+  },
+  "models": {
+    "gpt-5":{
+      "temperature": 0.2,
+      "max_tokens": 4096
+    },
+    "gemini-2.5-pro-0605": {
+      "temperature": 0.2,
+      "max_tokens": 4096
+    },
+    "qvq-max-latest": {
+      "temperature": 0.1,
+      "max_tokens": 4096
+    },
+    "kimi-vl-a3b-thinking-2506": {
+      "temperature": 0.1,
+      "max_tokens": 8192
+    }
+  }
+}
