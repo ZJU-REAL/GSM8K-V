@@ -84,13 +84,13 @@ python eval.py --type api \
 <div style="flex: 1; text-align: center;">
 
 
-<img src="assets/data_statistic.png" alt="Dataset Statistics" style="max-width: 100%; height: auto;">
+<img src="assets/data_statistic.png" alt="Dataset Statistics" style="max-width: 48%; height: auto;">
 
 </div>
 <div style="flex: 1; text-align: center;">
 
 
-<img src="assets/data_distribution_01.png" alt="Category Distribution" style="max-width: 100%; height: auto;">
+<img src="assets/data_distribution_01.png" alt="Category Distribution" style="max-width: 48%; height: auto;">
 
 </div>
 </div>
@@ -103,7 +103,7 @@ python eval.py --type api \
 
 ```bash
 # Limit number of samples
-python eval.py --num-samples 100
+python eval.py --num-samples 5
 
 # Specify evaluation modes
 python eval.py --modes text_only visual scene
