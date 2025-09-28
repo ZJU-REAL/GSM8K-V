@@ -1,31 +1,33 @@
 <div align="center">
 
-<h1><img src="assets/logo.png" alt="GSM8K-V Logo" height="60"> GSM8K-V: Can Vision Language Models Solve Grade School Math Word Problems in Visual Contexts?</h1>
+<img src="assets/logo.png" alt="GSM8K-V Logo Logo" height="100" style="vertical-align: baseline;" />
+<h1>GSM8K-V: Can Vision Language Models Solve Grade School Math Word Problems in Visual Contexts?</h1>
 
 </div>
 
 <br>
 
-<p align="center">
-  <strong>Fan Yuan<sup>1,*</sup></strong>,
-  <strong>Yuchen Yan<sup>1,*</sup></strong>,
-  Yifan Jiang<sup>1</sup>,
-  Haoran Zhao<sup>1</sup>,
-  Tao Feng<sup>1</sup>,
-  Jinyan Chen<sup>1</sup>,
-  <br>
-  Yanwei Lou<sup>1</sup>,
-  Wenqi Zhang<sup>1</sup>,
-  <strong>Yongliang Shen<sup>1,†</sup></strong>,
-  Weiming Lu<sup>1</sup>,
-  Jun Xiao<sup>1</sup>,
-  Yueting Zhuang<sup>1</sup>
-</p>
+<div align="center">
+
+[Fan Yuan](mailto:yuanfan7777777@gmail.com)<sup>1,\*</sup>,
+[Yuchen Yan](mailto:yanyuchen@zju.edu.cn)<sup>1,\*</sup>,
+Yifan Jiang<sup>1</sup>,
+Haoran Zhao<sup>1</sup>,
+Tao Feng<sup>1</sup>,
+Jinyan Chen<sup>1</sup>,
+Yanwei Lou<sup>1</sup>,
+<br>
+Wenqi Zhang<sup>1</sup>,
+<strong>[Yongliang Shen]((mailto:syl@zju.edu.cn))<sup>1,†</sup></strong>,
+Weiming Lu<sup>1</sup>,
+Jun Xiao<sup>1</sup>,
+Yueting Zhuang<sup>1</sup>
+
+</div>
+
+
 <p align="center">
   <sup>1</sup>Zhejiang University
-  <br>
-  {yuanfan7777777@gmail.com, yanyuchen@zju.edu.cn, syl@zju.edu.cn}
-  <br>
   <sup>*</sup>Equal contribution, <sup>†</sup>Corresponding author
 </p>
 
@@ -38,7 +40,7 @@ alt="arXiv" height="14"> <a href="xx">Arxiv</a>
 </p>
 
 <p align="center">
-  <img src="assets/intro.png" alt="GSM8K-V Pipeline" style="width: 95%; height: auto; display: block; margin: 0 auto;">
+  <img src="assets/intro.png" alt="GSM8K-V Pipeline" style="width: 100%; height: auto; display: block; margin: 0 auto;">
 </p>
 
 
@@ -72,19 +74,19 @@ pip install -r requirements.txt
 
 # Command for vllm mode
 python eval.py --type vllm \
---model_name <eval_model_name> --api_base <vllm_api_base> \
---concurrency <eval_parallel_num> --image_dir <data_path>
+  --model_name <eval_model_name> --api_base <vllm_api_base> \
+  --concurrency <eval_parallel_num> --image_dir <data_path>
 
 # Command for api mode
 python eval.py --type api \
---model_name <eval_model_name> --api_key <your_api_key> \ 
---concurrency <eval_parallel_num> --image_dir <data_path>
+  --model_name <eval_model_name> --api_key <your_api_key> \ 
+  --concurrency <eval_parallel_num> --image_dir <data_path>
 ```
 
 ## 📊 Benchmark Statistics
 
 <p align="center">
-  <img src="assets/data_statistic.png" alt="Dataset Statistics" width="47%">
+  <img src="assets/data_statistic.png" alt="Dataset Statistics" width="45%">
   <img src="assets/data_distribution_01.png" alt="Category Distribution" width="47%">
 </p>
 
@@ -114,7 +116,7 @@ python eval.py --data-categories measurement physical_metric
 python eval.py --data-subcategories distance speed weight
 
 # Example Use
----- vllm start ----
+# ---- vllm start ----
 vllm serve model/internvl3_5-8b \
   --port 8010 \
   --tensor-parallel-size 4 \
@@ -123,10 +125,10 @@ vllm serve model/internvl3_5-8b \
   --trust-remote-code \
   --served-model-name "internvl3.5-8b"
 
----- eval start ----
+# ---- eval start ----
 python eval.py --type vllm \
---model_name internvl3.5-8b --api_base http://localhost:8010/v1 \
---concurrency 32 --image_dir data/images
+  --model_name internvl3.5-8b --api_base http://localhost:8010/v1 \
+  --concurrency 32 --image_dir data/images
 
 # For detailed help
 python eval.py --help
@@ -138,7 +140,7 @@ python eval.py --help
 If you find our work helpful, feel free to give us a cite.
 
 ```
-xxx
+TBD
 ```
 
 ## ✉️ Contact Us
