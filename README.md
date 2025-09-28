@@ -80,19 +80,16 @@ python eval.py --type api \
 
 ## 📊 Benchmark Statistics
 
-<div align="center" style="display: table; margin: 20px auto;">
-  <div style="display: table-cell; text-align: center; padding: 0 15px;">
-    <img src="assets/data_statistic.png" alt="Dataset Statistics" style="width: 300px; height: auto;">
-  </div>
-  <div style="display: table-cell; text-align: center; padding: 0 15px;">
-    <img src="assets/data_distribution_01.png" alt="Category Distribution" style="width: 300px; height: auto;">
-  </div>
-</div>
+<p align="center">
+  <img src="assets/data_statistic.png" alt="Dataset Statistics" width="47%">
+  <img src="assets/data_distribution_01.png" alt="Category Distribution" width="47%">
+</p>
+
 
 ## 📈 Main Results
 
 <p align="center">
-  <img src="assets/main_result.png" alt="Main Result" style="width: 600px; height: auto;">
+  <img src="assets/main_result.png" alt="Main Result" style="width: 100%; height: auto;">
 </p>
 
 ## ⚙️ Advanced Configuration Options
