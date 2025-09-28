@@ -37,7 +37,7 @@ alt="arXiv" height="14"> <a href="xx">Arxiv</a>
 <br>
 </p>
 
-<img src="assets/intro.png" alt="GSM8K-V Pipeline">
+<img src="assets/intro.png" alt="GSM8K-V Pipeline" style="width: 600px; height: auto; display: block; margin: 0 auto;">
 
 
 ## 🔔 News
@@ -80,24 +80,18 @@ python eval.py --type api \
 
 ## 📊 Benchmark Statistics
 
-<div style="display: flex; gap: 20px; align-items: center; justify-content: center;">
-<div style="flex: 1; text-align: center;">
-
-
-<img src="assets/data_statistic.png" alt="Dataset Statistics" style="max-width: 48%; height: auto;">
-
-</div>
-<div style="flex: 1; text-align: center;">
-
-
-<img src="assets/data_distribution_01.png" alt="Category Distribution" style="max-width: 48%; height: auto;">
-
-</div>
+<div align="center" style="display: table; margin: 20px auto;">
+  <div style="display: table-cell; text-align: center; padding: 0 15px;">
+    <img src="assets/data_statistic.png" alt="Dataset Statistics" style="width: 300px; height: auto;">
+  </div>
+  <div style="display: table-cell; text-align: center; padding: 0 15px;">
+    <img src="assets/data_distribution_01.png" alt="Category Distribution" style="width: 300px; height: auto;">
+  </div>
 </div>
 
 ## 📈 Main Results
 
-<img src="assets/main_result.png" alt="Main Result">
+<img src="assets/main_result.png" alt="Main Result" style="width: 600px; height: auto; display: block; margin: 0 auto;">
 
 ## ⚙️ Advanced Configuration Options
 
