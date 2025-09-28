@@ -91,7 +91,9 @@ python eval.py --type api \
 
 ## 📈 Main Results
 
-<img src="assets/main_result.png" alt="Main Result" style="width: 600px; height: auto; display: block; margin: 0 auto;">
+<p align="center">
+  <img src="assets/main_result.png" alt="Main Result" style="width: 600px; height: auto;">
+</p>
 
 ## ⚙️ Advanced Configuration Options
 
