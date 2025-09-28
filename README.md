@@ -18,7 +18,7 @@ Jinyan Chen<sup>1</sup>,
 Yanwei Lou<sup>1</sup>,
 <br>
 Wenqi Zhang<sup>1</sup>,
-<strong>[Yongliang Shen]((mailto:syl@zju.edu.cn))<sup>1,†</sup></strong>,
+[Yongliang Shen](mailto:syl@zju.edu.cn)<sup>1,†</sup>,
 Weiming Lu<sup>1</sup>,
 Jun Xiao<sup>1</sup>,
 Yueting Zhuang<sup>1</sup>
