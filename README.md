@@ -28,6 +28,7 @@ Yueting Zhuang<sup>1</sup>
 
 <p align="center">
   <sup>1</sup>Zhejiang University
+  <br>
   <sup>*</sup>Equal contribution, <sup>†</sup>Corresponding author
 </p>
 
