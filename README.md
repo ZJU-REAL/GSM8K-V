@@ -35,7 +35,7 @@ Yueting Zhuang<sup>1</sup>
 <p align="center">
 🤗 <a href="https://huggingface.co/datasets/ZJU-REAL/GSM8K-V">Dataset</a> |
 <img src="docs/static/images/arxiv_logo.png" 
-alt="arXiv" height="14"> <a href="xx">Arxiv</a> 
+alt="arXiv" height="14"> <a href="https://arxiv.org/abs/2509.25160">Arxiv</a> 
 | 📑 <a href="https://zju-real.github.io/GSM8K-V">ProjectPage</a> 
 <br>
 </p>
@@ -141,7 +141,15 @@ python eval.py --help
 If you find our work helpful, feel free to give us a cite.
 
 ```
-TBD
+@misc{yuan2025gsm8kvvisionlanguagemodels,
+      title={GSM8K-V: Can Vision Language Models Solve Grade School Math Word Problems in Visual Contexts}, 
+      author={Fan Yuan and Yuchen Yan and Yifan Jiang and Haoran Zhao and Tao Feng and Jinyan Chen and Yanwei Lou and Wenqi Zhang and Yongliang Shen and Weiming Lu and Jun Xiao and Yueting Zhuang},
+      year={2025},
+      eprint={2509.25160},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2509.25160}, 
+}
 ```
 
 ## ✉️ Contact Us
