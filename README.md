@@ -34,9 +34,10 @@ Yueting Zhuang<sup>1</sup>
 
 <p align="center">
 🤗 <a href="https://huggingface.co/datasets/ZJU-REAL/GSM8K-V">Dataset</a> |
+🤗 <a href="https://huggingface.co/papers/2509.25160">Hf-Paper</a> |
 <img src="docs/static/images/arxiv_logo.png" 
 alt="arXiv" height="14"> <a href="https://arxiv.org/abs/2509.25160">Arxiv</a> 
-| 📑 <a href="https://zju-real.github.io/GSM8K-V">ProjectPage</a> 
+|🌐 <a href="https://zju-real.github.io/GSM8K-V">ProjectPage</a> 
 <br>
 </p>
 
@@ -47,8 +48,9 @@ alt="arXiv" height="14"> <a href="https://arxiv.org/abs/2509.25160">Arxiv</a>
 
 
 ## 🔔 News
+- 🔥 **2025.09.30:** Paper is released! 🚀
 - 🔥 **2025.09.28:** Code for evaluation is available! 🚀
-- 🔥 **2025.09.28:** Home page is available. 🌟
+- 🔥 **2025.09.28:** Project page is available. 🌟
 
 ## 👁️ Overview 
 
