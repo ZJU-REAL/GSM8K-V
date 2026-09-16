@@ -48,6 +48,7 @@ alt="arXiv" height="14"> <a href="https://arxiv.org/abs/2509.25160">Arxiv</a>
 
 
 ## 🔔 News
+- 🔥 **2026.08.21:** Our paper has been accepted at EMNLP 2026 Main Conference! 🎉🎉🎉
 - 🔥 **2025.09.30:** Paper is released! 🚀
 - 🔥 **2025.09.28:** Code for evaluation is available! 🚀
 - 🔥 **2025.09.28:** Project page is available. 🌟
@@ -156,4 +157,4 @@ If you find our work helpful, feel free to give us a cite.
 
 ## ✉️ Contact Us
 If you have any questions, please contact us by email: 
-yuanfan7777777@gmail.com
+leofyfan@zju.edu.cn
